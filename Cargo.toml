@@ -1,0 +1,46 @@
+[package]
+name = "mltokenizer-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["MLTokenizer Team <info@mltokenizer.ai>"]
+description = "High-performance components for ML tokenization system"
+license = "MIT"
+
+[lib]
+name = "mltokenizer_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.19.0", features = ["extension-module"] }
+rayon = "1.7.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+unicode-normalization = "0.1.22"
+regex = "1.9.3"
+memmap2 = "0.7.1"
+smallvec = "1.11.0"
+hashbrown = "0.14.0"
+thiserror = "1.0.47"
+itertools = "0.11.0"
+fst = "0.4.7"
+bytecount = "0.6.3"
+parking_lot = "0.12.1"
+crossbeam = "0.8.2"
+log = "0.4.20"
+indicatif = "0.17.6"
+
+[dev-dependencies]
+criterion = "0.5.1"
+tempfile = "3.8.0"
+proptest = "1.2.0"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = false
+
+[profile.bench]
+opt-level = 3
+debug = false

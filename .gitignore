@@ -1,0 +1,45 @@
+# Environment files
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Test coverage
+.coverage
+htmlcov/
+
+# Logs
+logs/
+*.log
+
+# Local development files
+local_settings.py
+
+# macOS specific
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Rust
+/target/
+
+# Node.js
+node_modules/
+
+# Tauri
+debug/
+release/ 

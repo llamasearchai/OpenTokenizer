@@ -1,0 +1,3600 @@
+# ML Tokenization System
+
+I'll provide you with a comprehensive architecture and implementation for a production-ready ML Tokenization System designed for both research and production environments.
+
+## Architecture Overview
+
+Let's start with the high-level architecture:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌───────────────────────┐   │
+│  │ Tokenization│    │  Encoding   │    │    Normalization      │   │
+│  │    Core     │───▶│  Management │───▶│        Engine         │   │
+│  └─────────────┘    └─────────────┘    └───────────────────────┘   │
+│         │                  │                      │                 │
+│         ▼                  ▼                      ▼                 │
+│  ┌─────────────┐    ┌─────────────┐    ┌───────────────────────┐   │
+│  │  Algorithm  │    │  Vocabulary │    │    Pre/Post-Process   │   │
+│  │   Registry  │    │  Management │    │        Pipeline       │   │
+│  └─────────────┘    └─────────────┘    └───────────────────────┘   │
+│                                                    │                │
+│                                                    ▼                │
+│  ┌─────────────────────────────┐    ┌───────────────────────────┐  │
+│  │   Performance Monitoring    │◀───│     Orchestration Hub     │  │
+│  └─────────────────────────────┘    └───────────────────────────┘  │
+│                  │                             ▲                    │
+│                  ▼                             │                    │
+│  ┌─────────────────────────────┐    ┌───────────────────────────┐  │
+│  │       Model Adapters        │    │   Tokenization Laboratory │  │
+│  └─────────────────────────────┘    └───────────────────────────┘  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## Project Structure
+
+```
+ml-tokenization-system/
+├── pyproject.toml
+├── Cargo.toml
+├── Dockerfile
+├── docker-compose.yml
+├── README.md
+├── .gitignore
+├── tests/
+│   ├── python/
+│   │   ├── __init__.py
+│   │   ├── unit/
+│   │   ├── integration/
+│   │   ├── performance/
+│   │   └── multilingual/
+│   └── rust/
+│       ├── unit/
+│       └── integration/
+├── docs/
+│   ├── conf.py
+│   ├── index.rst
+│   ├── api/
+│   └── guides/
+├── tokenization_lab/
+│   ├── src-tauri/
+│   │   ├── Cargo.toml
+│   │   ├── src/
+│   │   │   ├── main.rs
+│   │   │   ├── tokenization.rs
+│   │   │   ├── visualization.rs
+│   │   │   └── analysis.rs
+│   │   └── tauri.conf.json
+│   └── src/
+│       ├── assets/
+│       ├── components/
+│       ├── pages/
+│       ├── stores/
+│       ├── utils/
+│       ├── App.tsx
+│       └── main.tsx
+├── src/
+    ├── tokenizers/
+        ├── __init__.py
+        ├── core/
+        │   ├── __init__.py
+        │   ├── base_tokenizer.py
+        │   ├── registry.py
+        │   └── errors.py
+        ├── algorithms/
+        │   ├── __init__.py
+        │   ├── bpe.py
+        │   ├── wordpiece.py
+        │   ├── unigram.py
+        │   ├── sentencepiece.py
+        │   └── character.py
+        ├── encoding/
+        │   ├── __init__.py
+        │   ├── encoder.py
+        │   ├── decoder.py
+        │   ├── vocabulary.py
+        │   └── special_tokens.py
+        ├── normalization/
+        │   ├── __init__.py
+        │   ├── normalizers.py
+        │   ├── unicode.py
+        │   └── languages.py
+        ├── preprocessing/
+        │   ├── __init__.py
+        │   ├── text_cleaning.py
+        │   ├── sequence_handling.py
+        │   └── pipeline.py
+        ├── models/
+        │   ├── __init__.py
+        │   ├── bert.py
+        │   ├── gpt.py
+        │   ├── t5.py
+        │   ├── llama.py
+        │   └── custom.py
+        ├── performance/
+        │   ├── __init__.py
+        │   ├── metrics.py
+        │   ├── optimizers.py
+        │   ├── profiler.py
+        │   └── cache.py
+        ├── utils/
+        │   ├── __init__.py
+        │   ├── logging.py
+        │   ├── validation.py
+        │   ├── serialization.py
+        │   └── parallel.py
+        ├── rust_extensions/
+        │   ├── __init__.py
+        │   └── bindings.py
+        ├── server/
+        │   ├── __init__.py
+        │   ├── api.py
+        │   └── service.py
+        ├── cli.py
+        └── version.py
+```
+
+## Dependency Management
+
+### Python Dependencies (pyproject.toml)
+
+```toml
+[tool.poetry]
+name = "ml-tokenization-system"
+version = "0.1.0"
+description = "A comprehensive ML tokenization system for research and production"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords = ["tokenization", "nlp", "machine learning", "transformer", "language model"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+numpy = "^1.24.3"
+pydantic = "^2.4.2"
+tqdm = "^4.65.0"
+loguru = "^0.7.0"
+click = "^8.1.6"
+regex = "^2023.6.3"
+fastapi = "^0.103.1"
+uvicorn = "^0.23.2"
+protobuf = "^4.24.3"
+sentencepiece = "^0.1.99"
+transformers = "^4.33.2"
+scipy = "^1.11.3"
+ujson = "^5.8.0"
+tokenizers = "^0.14.0"
+jinja2 = "^3.1.2"
+huggingface-hub = "^0.17.3"
+tiktoken = "^0.5.1"
+PyYAML = "^6.0.1"
+requests = "^2.31.0"
+typer = "^0.9.0"
+rich = "^13.5.2"
+maturin = "^1.2.3"
+prometheus-client = "^0.17.1"
+matplotlib = "^3.8.0"
+seaborn = "^0.12.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-benchmark = "^4.0.0"
+black = "^23.7.0"
+isort = "^5.12.0"
+mypy = "^1.4.1"
+sphinx = "^7.2.6"
+sphinx-rtd-theme = "^1.3.0"
+pre-commit = "^3.4.0"
+ruff = "^0.0.287"
+hypothesis = "^6.82.6"
+
+[tool.poetry.group.tokenization_lab]
+optional = true
+
+[tool.poetry.group.tokenization_lab.dependencies]
+uvicorn = "^0.23.2"
+fastapi = "^0.103.1"
+websockets = "^11.0.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "maturin>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+tokenize = "tokenizers.cli:app"
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+```
+
+### Rust Dependencies (Cargo.toml)
+
+```toml
+[package]
+name = "tokenizers-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "High-performance components for ML tokenization system"
+license = "MIT"
+
+[lib]
+name = "tokenizers_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.19.0", features = ["extension-module"] }
+rayon = "1.7.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+unicode-normalization = "0.1.22"
+regex = "1.9.3"
+memmap2 = "0.7.1"
+smallvec = "1.11.0"
+hashbrown = "0.14.0"
+thiserror = "1.0.47"
+itertools = "0.11.0"
+fst = "0.4.7"
+bytecount = "0.6.3"
+parking_lot = "0.12.1"
+crossbeam = "0.8.2"
+log = "0.4.20"
+indicatif = "0.17.6"
+
+[dev-dependencies]
+criterion = "0.5.1"
+tempfile = "3.8.0"
+proptest = "1.2.0"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = false
+
+[profile.bench]
+opt-level = 3
+debug = false
+```
+
+## Core Implementation
+
+### 1. Base Tokenizer Implementation
+
+```python
+# src/tokenizers/core/base_tokenizer.py
+from abc import ABC, abstractmethod
+from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
+
+import numpy as np
+from loguru import logger
+from pydantic import BaseModel, Field
+
+from tokenizers.core.errors import TokenizationError
+from tokenizers.encoding.encoder import Encoder
+from tokenizers.encoding.special_tokens import SpecialTokens
+from tokenizers.normalization.normalizers import Normalizer
+from tokenizers.preprocessing.pipeline import PreprocessingPipeline
+from tokenizers.utils.logging import tokenizer_logger
+
+
+class TokenizerType(str, Enum):
+    """Types of tokenizers supported by the system."""
+    BPE = "bpe"
+    WORDPIECE = "wordpiece"
+    UNIGRAM = "unigram"
+    SENTENCEPIECE = "sentencepiece"
+    CHARACTER = "character"
+    CUSTOM = "custom"
+
+
+class TokenizerOptions(BaseModel):
+    """Configuration options for tokenizers."""
+    add_bos_token: bool = Field(default=False, description="Add beginning of sequence token")
+    add_eos_token: bool = Field(default=False, description="Add end of sequence token")
+    add_padding_token: bool = Field(default=False, description="Add padding token")
+    truncation_strategy: str = Field(default="longest_first", 
+                                     description="Strategy for truncation: longest_first, only_first, only_second")
+    max_length: Optional[int] = Field(default=None, description="Maximum sequence length")
+    stride: int = Field(default=0, description="Stride for truncation with overlap")
+    padding_strategy: str = Field(default="longest", 
+                                  description="Strategy for padding: longest, max_length, do_not_pad")
+    pad_to_multiple_of: Optional[int] = Field(default=None, 
+                                         description="Pad to a multiple of this value")
+    return_attention_mask: bool = Field(default=True, description="Return attention mask")
+    return_token_type_ids: bool = Field(default=True, description="Return token type IDs")
+    return_overflowing_tokens: bool = Field(default=False, description="Return overflowing tokens")
+    return_special_tokens_mask: bool = Field(default=False, description="Return special tokens mask")
+    return_offsets_mapping: bool = Field(default=False, description="Return offsets mapping")
+    return_length: bool = Field(default=False, description="Return sequence lengths")
+
+
+class TokenizedOutput(BaseModel):
+    """Standard output format for tokenization results."""
+    input_ids: List[int]
+    attention_mask: Optional[List[int]] = None
+    token_type_ids: Optional[List[int]] = None
+    special_tokens_mask: Optional[List[int]] = None
+    overflowing_tokens: Optional[List[List[int]]] = None
+    offset_mapping: Optional[List[Tuple[int, int]]] = None
+    length: Optional[int] = None
+    tokens: Optional[List[str]] = None
+
+
+class BatchTokenizedOutput(BaseModel):
+    """Output format for batch tokenization."""
+    input_ids: List[List[int]]
+    attention_mask: Optional[List[List[int]]] = None
+    token_type_ids: Optional[List[List[int]]] = None
+    special_tokens_mask: Optional[List[List[int]]] = None
+    overflowing_tokens: Optional[List[List[List[int]]]] = None
+    offset_mapping: Optional[List[List[Tuple[int, int]]]] = None
+    lengths: Optional[List[int]] = None
+    tokens: Optional[List[List[str]]] = None
+
+
+class BaseTokenizer(ABC):
+    """Base class for all tokenizers in the system."""
+    
+    def __init__(
+        self,
+        tokenizer_type: TokenizerType,
+        vocab_size: int,
+        normalizer: Optional[Normalizer] = None,
+        preprocessor: Optional[PreprocessingPipeline] = None,
+        encoder: Optional[Encoder] = None,
+        special_tokens: Optional[SpecialTokens] = None,
+        options: Optional[TokenizerOptions] = None,
+    ):
+        """Initialize the base tokenizer with components and options.
+        
+        Args:
+            tokenizer_type: Type of tokenizer
+            vocab_size: Size of the vocabulary
+            normalizer: Text normalizer component
+            preprocessor: Text preprocessing pipeline
+            encoder: Token encoder component
+            special_tokens: Special tokens handler
+            options: Tokenizer options
+        """
+        self.tokenizer_type = tokenizer_type
+        self.vocab_size = vocab_size
+        self.normalizer = normalizer
+        self.preprocessor = preprocessor or PreprocessingPipeline()
+        self.encoder = encoder
+        self.special_tokens = special_tokens or SpecialTokens()
+        self.options = options or TokenizerOptions()
+        self._is_trained = False
+        
+        # Initialize logger
+        self.logger = tokenizer_logger.bind(tokenizer_type=tokenizer_type.value)
+        self.logger.info(f"Initialized {tokenizer_type.value} tokenizer with vocab size {vocab_size}")
+    
+    @property
+    def is_trained(self) -> bool:
+        """Check if the tokenizer is trained."""
+        return self._is_trained
+    
+    @abstractmethod
+    def train(self, texts: List[str], **kwargs) -> None:
+        """Train the tokenizer on a corpus of texts.
+        
+        Args:
+            texts: List of texts to train on
+            **kwargs: Additional training parameters
+        """
+        pass
+    
+    @abstractmethod
+    def encode(
+        self, 
+        text: str, 
+        text_pair: Optional[str] = None,
+        add_special_tokens: bool = True,
+        return_tokens: bool = False
+    ) -> TokenizedOutput:
+        """Encode a text (or text pair) into token IDs.
+        
+        Args:
+            text: Text to encode
+            text_pair: Optional paired text (e.g., for sequence-pair tasks)
+            add_special_tokens: Whether to add special tokens
+            return_tokens: Whether to return the string tokens
+            
+        Returns:
+            TokenizedOutput object with tokenization results
+        """
+        pass
+    
+    @abstractmethod
+    def decode(
+        self, 
+        token_ids: List[int], 
+        skip_special_tokens: bool = True
+    ) -> str:
+        """Decode token IDs back to text.
+        
+        Args:
+            token_ids: List of token IDs to decode
+            skip_special_tokens: Whether to skip special tokens in output
+            
+        Returns:
+            Decoded text
+        """
+        pass
+    
+    def encode_batch(
+        self,
+        texts: List[str],
+        text_pairs: Optional[List[str]] = None,
+        add_special_tokens: bool = True,
+        return_tokens: bool = False
+    ) -> BatchTokenizedOutput:
+        """Encode a batch of texts (or text pairs) into token IDs.
+        
+        Args:
+            texts: List of texts to encode
+            text_pairs: Optional list of paired texts
+            add_special_tokens: Whether to add special tokens
+            return_tokens: Whether to return the string tokens
+            
+        Returns:
+            BatchTokenizedOutput object with tokenization results
+        """
+        self.logger.debug(f"Encoding batch of {len(texts)} texts")
+        
+        if not self.is_trained:
+            raise TokenizationError("Tokenizer must be trained before encoding")
+        
+        # Validate input
+        if text_pairs and len(texts) != len(text_pairs):
+            raise ValueError("Number of texts and text pairs must match")
+        
+        # Process each text (or text pair)
+        results = []
+        for i, text in enumerate(texts):
+            text_pair = text_pairs[i] if text_pairs else None
+            result = self.encode(
+                text=text,
+                text_pair=text_pair,
+                add_special_tokens=add_special_tokens,
+                return_tokens=return_tokens
+            )
+            results.append(result)
+        
+        # Combine results into batch output
+        batch_output = BatchTokenizedOutput(
+            input_ids=[r.input_ids for r in results],
+            attention_mask=[r.attention_mask for r in results] if results[0].attention_mask is not None else None,
+            token_type_ids=[r.token_type_ids for r in results] if results[0].token_type_ids is not None else None,
+            special_tokens_mask=[r.special_tokens_mask for r in results] if results[0].special_tokens_mask is not None else None,
+            overflowing_tokens=[r.overflowing_tokens for r in results] if results[0].overflowing_tokens is not None else None,
+            offset_mapping=[r.offset_mapping for r in results] if results[0].offset_mapping is not None else None,
+            lengths=[r.length for r in results] if results[0].length is not None else None,
+            tokens=[r.tokens for r in results] if return_tokens else None
+        )
+        
+        return batch_output
+    
+    def decode_batch(
+        self,
+        batch_token_ids: List[List[int]],
+        skip_special_tokens: bool = True
+    ) -> List[str]:
+        """Decode a batch of token IDs back to texts.
+        
+        Args:
+            batch_token_ids: List of token ID lists to decode
+            skip_special_tokens: Whether to skip special tokens in output
+            
+        Returns:
+            List of decoded texts
+        """
+        self.logger.debug(f"Decoding batch of {len(batch_token_ids)} token sequences")
+        
+        if not self.is_trained:
+            raise TokenizationError("Tokenizer must be trained before decoding")
+        
+        return [
+            self.decode(token_ids, skip_special_tokens=skip_special_tokens)
+            for token_ids in batch_token_ids
+        ]
+    
+    def save(self, path: Union[str, Path], **kwargs) -> None:
+        """Save the tokenizer to a directory.
+        
+        Args:
+            path: Directory path to save to
+            **kwargs: Additional saving parameters
+        """
+        raise NotImplementedError("Each tokenizer must implement its own save method")
+    
+    @classmethod
+    def load(cls, path: Union[str, Path], **kwargs) -> "BaseTokenizer":
+        """Load a tokenizer from a directory.
+        
+        Args:
+            path: Directory path to load from
+            **kwargs: Additional loading parameters
+            
+        Returns:
+            Loaded tokenizer instance
+        """
+        raise NotImplementedError("Each tokenizer must implement its own load method")
+    
+    def get_vocab(self) -> Dict[str, int]:
+        """Get the vocabulary mapping.
+        
+        Returns:
+            Dictionary mapping tokens to IDs
+        """
+        if not self.encoder:
+            raise TokenizationError("Encoder is not initialized")
+        
+        return self.encoder.get_vocab()
+    
+    def get_vocab_size(self) -> int:
+        """Get the vocabulary size.
+        
+        Returns:
+            Size of the vocabulary
+        """
+        return self.vocab_size
+    
+    def id_to_token(self, id: int) -> str:
+        """Convert a token ID to its string representation.
+        
+        Args:
+            id: Token ID
+            
+        Returns:
+            String token
+        """
+        if not self.encoder:
+            raise TokenizationError("Encoder is not initialized")
+        
+        return self.encoder.id_to_token(id)
+    
+    def token_to_id(self, token: str) -> int:
+        """Convert a string token to its ID.
+        
+        Args:
+            token: String token
+            
+        Returns:
+            Token ID
+        """
+        if not self.encoder:
+            raise TokenizationError("Encoder is not initialized")
+        
+        return self.encoder.token_to_id(token)
+    
+    def add_tokens(self, tokens: List[str]) -> int:
+        """Add new tokens to the vocabulary.
+        
+        Args:
+            tokens: List of tokens to add
+            
+        Returns:
+            Number of tokens actually added
+        """
+        if not self.encoder:
+            raise TokenizationError("Encoder is not initialized")
+        
+        return self.encoder.add_tokens(tokens)
+    
+    def add_special_tokens(self, special_tokens_dict: Dict[str, str]) -> int:
+        """Add special tokens to the tokenizer.
+        
+        Args:
+            special_tokens_dict: Dictionary of special tokens
+            
+        Returns:
+            Number of tokens actually added
+        """
+        if not self.special_tokens:
+            raise TokenizationError("Special tokens handler is not initialized")
+        
+        if not self.encoder:
+            raise TokenizationError("Encoder is not initialized")
+        
+        # First register special tokens
+        self.special_tokens.register_special_tokens(special_tokens_dict)
+        
+        # Then add them to the encoder
+        added = 0
+        for token_type, token in special_tokens_dict.items():
+            if self.encoder.add_special_token(token, token_type):
+                added += 1
+        
+        return added
+    
+    def apply_truncation(
+        self, 
+        input_ids: List[int],
+        token_type_ids: Optional[List[int]] = None,
+        pair_input_ids: Optional[List[int]] = None,
+    ) -> Tuple[List[int], Optional[List[int]], Optional[List[List[int]]]]:
+        """Apply truncation to input sequences according to the options.
+        
+        Args:
+            input_ids: First sequence of token IDs
+            token_type_ids: Token type IDs
+            pair_input_ids: Optional second sequence of token IDs
+            
+        Returns:
+            Tuple of (truncated input_ids, truncated token_type_ids, overflowing tokens)
+        """
+        if not self.options.max_length:
+            return input_ids, token_type_ids, None
+        
+        max_length = self.options.max_length
+        strategy = self.options.truncation_strategy
+        stride = self.options.stride
+        overflowing_tokens = []
+        
+        # Handle single sequence
+        if pair_input_ids is None:
+            if len(input_ids) <= max_length:
+                return input_ids, token_type_ids, None
+            
+            # Simple truncation for single sequence
+            overflowing_tokens = []
+            for i in range(0, len(input_ids) - max_length + 1, max(1, stride)):
+                overflowing_tokens.append(input_ids[i:i + max_length])
+            
+            return input_ids[:max_length], token_type_ids[:max_length] if token_type_ids else None, overflowing_tokens
+        
+        # Handle sequence pair
+        total_len = len(input_ids) + len(pair_input_ids)
+        if total_len <= max_length:
+            return input_ids, token_type_ids, None
+        
+        # Apply different truncation strategies
+        if strategy == "longest_first":
+            # Truncate the longer sequence first
+            if len(input_ids) > len(pair_input_ids):
+                input_ids = input_ids[:max_length - len(pair_input_ids)]
+            else:
+                pair_input_ids = pair_input_ids[:max_length - len(input_ids)]
+        elif strategy == "only_first":
+            # Only truncate the first sequence
+            input_ids = input_ids[:max_length - len(pair_input_ids)]
+        elif strategy == "only_second":
+            # Only truncate the second sequence
+            pair_input_ids = pair_input_ids[:max_length - len(input_ids)]
+        
+        # Recombine input_ids and update token_type_ids
+        combined_input_ids = input_ids + pair_input_ids
+        combined_token_type_ids = None
+        if token_type_ids:
+            combined_token_type_ids = token_type_ids
+        
+        return combined_input_ids, combined_token_type_ids, overflowing_tokens
+    
+    def apply_padding(
+        self,
+        input_ids: List[int],
+        max_length: Optional[int] = None,
+        token_type_ids: Optional[List[int]] = None,
+    ) -> Tuple[List[int], List[int], Optional[List[int]]]:
+        """Apply padding to input sequence according to the options.
+        
+        Args:
+            input_ids: Sequence of token IDs
+            max_length: Maximum length to pad to (overrides options)
+            token_type_ids: Token type IDs
+            
+        Returns:
+            Tuple of (padded input_ids, attention_mask, padded token_type_ids)
+        """
+        if not self.special_tokens or not self.special_tokens.pad_token_id:
+            raise TokenizationError("Padding token must be set to apply padding")
+        
+        length = len(input_ids)
+        padding_strategy = self.options.padding_strategy
+        pad_to_multiple_of = self.options.pad_to_multiple_of
+        
+        # Determine max length to pad to
+        if max_length is None:
+            if padding_strategy == "max_length" and self.options.max_length:
+                max_length = self.options.max_length
+            elif padding_strategy == "do_not_pad":
+                return input_ids, [1] * length, token_type_ids
+            else:  # padding_strategy == "longest"
+                max_length = length
+        
+        # Adjust to multiple if needed
+        if pad_to_multiple_of:
+            max_length = ((max_length + pad_to_multiple_of - 1) // pad_to_multiple_of) * pad_to_multiple_of
+        
+        # No padding needed
+        if length >= max_length:
+            return input_ids, [1] * length, token_type_ids
+        
+        # Pad sequence
+        padding_length = max_length - length
+        padded_input_ids = input_ids + [self.special_tokens.pad_token_id] * padding_length
+        attention_mask = [1] * length + [0] * padding_length
+        
+        # Pad token type IDs if provided
+        padded_token_type_ids = None
+        if token_type_ids:
+            padded_token_type_ids = token_type_ids + [0] * padding_length
+        
+        return padded_input_ids, attention_mask, padded_token_type_ids
+    
+    def get_special_tokens_mask(
+        self,
+        input_ids: List[int],
+        already_has_special_tokens: bool = False
+    ) -> List[int]:
+        """Create a mask identifying special tokens in input_ids.
+        
+        Args:
+            input_ids: Sequence of token IDs
+            already_has_special_tokens: Whether input_ids already has special tokens
+            
+        Returns:
+            List of 0s and 1s where 1 indicates a special token
+        """
+        if not self.special_tokens:
+            return [0] * len(input_ids)
+        
+        if already_has_special_tokens:
+            return [1 if id in self.special_tokens.all_special_ids else 0 for id in input_ids]
+        
+        # Need to add special tokens first
+        raise NotImplementedError("Getting special tokens mask without adding special tokens is not supported yet")
+```
+
+### 2. BPE Tokenizer Implementation
+
+```python
+# src/tokenizers/algorithms/bpe.py
+import json
+import os
+import re
+from collections import defaultdict
+from pathlib import Path
+from typing import Dict, List, Optional, Pattern, Set, Tuple, Union
+import multiprocessing as mp
+
+import numpy as np
+from loguru import logger
+from tqdm import tqdm
+
+from tokenizers.core.base_tokenizer import (
+    BaseTokenizer,
+    TokenizedOutput,
+    TokenizerOptions,
+    TokenizerType,
+)
+from tokenizers.core.errors import TokenizationError
+from tokenizers.encoding.encoder import Encoder
+from tokenizers.encoding.special_tokens import SpecialTokens
+from tokenizers.normalization.normalizers import Normalizer
+from tokenizers.preprocessing.pipeline import PreprocessingPipeline
+from tokenizers.utils.parallel import parallel_process
+
+
+class BPETokenizer(BaseTokenizer):
+    """Byte-Pair Encoding tokenizer implementation."""
+    
+    def __init__(
+        self,
+        vocab_size: int = 30000,
+        normalizer: Optional[Normalizer] = None,
+        preprocessor: Optional[PreprocessingPipeline] = None,
+        encoder: Optional[Encoder] = None,
+        special_tokens: Optional[SpecialTokens] = None,
+        options: Optional[TokenizerOptions] = None,
+        merges: Optional[Dict[Tuple[str, str], int]] = None,
+        pre_tokenizer_pattern: Optional[str] = r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+    ):
+        """Initialize a BPE tokenizer.
+        
+        Args:
+            vocab_size: Size of the vocabulary to train
+            normalizer: Text normalizer component
+            preprocessor: Text preprocessing pipeline
+            encoder: Token encoder component
+            special_tokens: Special tokens handler
+            options: Tokenizer options
+            merges: Pre-initialized BPE merges
+            pre_tokenizer_pattern: Regex pattern for initial tokenization
+        """
+        super().__init__(
+            tokenizer_type=TokenizerType.BPE,
+            vocab_size=vocab_size,
+            normalizer=normalizer,
+            preprocessor=preprocessor,
+            encoder=encoder,
+            special_tokens=special_tokens,
+            options=options,
+        )
+        
+        # BPE-specific attributes
+        self.merges = merges or {}
+        self.pre_tokenizer_pattern = pre_tokenizer_pattern
+        self._pre_tokenizer_regex = re.compile(pre_tokenizer_pattern)
+        self.byte_encoder = self._bytes_to_unicode()
+        self.byte_decoder = {v: k for k, v in self.byte_encoder.items()}
+        self.cache = {}
+        
+        self.logger.debug("Initialized BPE tokenizer")
+    
+    def _bytes_to_unicode(self) -> Dict[int, str]:
+        """Mapping from bytes to unicode characters for byte-level BPE."""
+        bs = list(range(ord("!"), ord("~") + 1)) + list(range(ord("¡"), ord("¬") + 1)) + list(range(ord("®"), ord("ÿ") + 1))
+        cs = bs.copy()
+        n = 0
+        for b in range(2**8):
+            if b not in bs:
+                bs.append(b)
+                cs.append(2**8 + n)
+                n += 1
+        return {b: chr(c) for b, c in zip(bs, cs)}
+    
+    def _pre_tokenize(self, text: str) -> List[str]:
+        """Perform initial tokenization of text."""
+        if self.normalizer:
+            text = self.normalizer.normalize(text)
+        
+        text = self.preprocessor.process(text)
+        
+        # Tokenize with regex
+        tokens = self._pre_tokenizer_regex.findall(text)
+        
+        # Convert to byte-level representation
+        bpe_tokens = []
+        for token in tokens:
+            token_bytes = token.encode("utf-8")
+            token_chars = "".join(self.byte_encoder[b] for b in token_bytes)
+            bpe_tokens.append(token_chars)
+        
+        return bpe_tokens
+    
+    def _get_pairs(self, word: List[str]) -> Set[Tuple[str, str]]:
+        """Get all adjacent pairs in a word."""
+        pairs = set()
+        prev_char = word[0]
+        for char in word[1:]:
+            pairs.add((prev_char, char))
+            prev_char = char
+        return pairs
+    
+    def _merge_word(self, word: List[str]) -> List[str]:
+        """Apply BPE merges to a single word."""
+        # Handle caching
+        word_str = "".join(word)
+        if word_str in self.cache:
+            return self.cache[word_str]
+        
+        pairs = self._get_pairs(word)
+        if not pairs:
+            return word
+        
+        while True:
+            # Find the best pair to merge
+            best_pair = None
+            best_rank = float("inf")
+            
+            for pair in pairs:
+                if pair in self.merges and self.merges[pair] < best_rank:
+                    best_pair = pair
+                    best_rank = self.merges[pair]
+            
+            if best_pair is None:
+                break
+                
+            # Apply the merge
+            first, second = best_pair
+            new_word = []
+            i = 0
+            while i < len(word):
+                try:
+                    j = word.index(first, i)
+                    new_word.extend(word[i:j])
+                    i = j
+                except ValueError:
+                    new_word.extend(word[i:])
+                    break
+                
+                if i < len(word) - 1 and word[i] == first and word[i + 1] == second:
+                    new_word.append(first + second)
+                    i += 2
+                else:
+                    new_word.append(word[i])
+                    i += 1
+            
+            word = new_word
+            if len(word) == 1:
+                break
+            
+            pairs = self._get_pairs(word)
+        
+        # Cache and return
+        self.cache[word_str] = word
+        return word
+    
+    def _bpe_encode(self, text: str) -> List[str]:
+        """Encode text using BPE algorithm."""
+        tokens = []
+        for word in self._pre_tokenize(text):
+            word = list(word)
+            merged = self._merge_word(word)
+            tokens.extend(merged)
+        return tokens
+    
+    def train(self, texts: List[str], min_frequency: int = 2, num_workers: int = -1, **kwargs) -> None:
+        """Train the BPE tokenizer on a corpus of texts.
+        
+        Args:
+            texts: List of texts to train on
+            min_frequency: Minimum frequency for a pair to be considered for merging
+            num_workers: Number of worker processes (-1 for all cores)
+            **kwargs: Additional training parameters
+        """
+        if num_workers <= 0:
+            num_workers = mp.cpu_count()
+        
+        self.logger.info(f"Training BPE tokenizer on {len(texts)} texts using {num_workers} workers")
+        
+        # Initial vocabulary (characters)
+        vocab: Dict[str, int] = defaultdict(int)
+        
+        # Count word frequencies
+        word_freqs: Dict[str, int] = defaultdict(int)
+        
+        # Pre-tokenize in parallel
+        self.logger.debug("Pre-tokenizing texts")
+        
+        def process_text(text):
+            result = []
+            for word in self._pre_tokenize(text):
+                word_freqs[word] += 1
+                for char in word:
+                    vocab[char] += 1
+                result.append(word)
+            return result
+        
+        all_words = []
+        for i, words in enumerate(tqdm(parallel_process(texts, process_text, n_jobs=num_workers), total=len(texts))):
+            all_words.extend(words)
+        
+        # Filter by frequency
+        word_freqs = {k: v for k, v in word_freqs.items() if v >= min_frequency}
+        
+        # Split words into character sequences
+        splits = {word: list(word) for word in word_freqs.keys()}
+        
+        # Track merges
+        merges: Dict[Tuple[str, str], int] = {}
+        vocab_size = len(vocab)
+        
+        self.logger.info(f"Initial vocab size: {vocab_size}, target: {self.vocab_size}")
+        
+        # Main BPE training loop
+        with tqdm(total=self.vocab_size - vocab_size) as pbar:
+            while vocab_size < self.vocab_size:
+                # Count pair frequencies
+                pair_freqs: Dict[Tuple[str, str], int] = defaultdict(int)
+                for word, freq in word_freqs.items():
+                    word_splits = splits[word]
+                    for i in range(len(word_splits) - 1):
+                        pair = (word_splits[i], word_splits[i + 1])
+                        pair_freqs[pair] += freq
+                
+                if not pair_freqs:
+                    break
+                
+                # Find most frequent pair
+                best_pair = max(pair_freqs.items(), key=lambda x: x[1])[0]
+                
+                # Record the merge operation
+                merges[best_pair] = len(merges)
+                
+                # Apply the merge to all splits
+                new_splits = {}
+                for word in word_freqs:
+                    word_splits = splits[word]
+                    new_word = []
+                    i = 0
+                    while i < len(word_splits):
+                        if i < len(word_splits) - 1 and (word_splits[i], word_splits[i + 1]) == best_pair:
+                            new_word.append(word_splits[i] + word_splits[i + 1])
+                            i += 2
+                        else:
+                            new_word.append(word_splits[i])
+                            i += 1
+                    new_splits[word] = new_word
+                
+                # Update the vocabulary
+                new_token = best_pair[0] + best_pair[1]
+                vocab[new_token] = pair_freqs[best_pair]
+                vocab_size += 1
+                
+                # Update splits
+                splits = new_splits
+                
+                pbar.update(1)
+                pbar.set_description(f"Merging {best_pair[0]}+{best_pair[1]}")
+        
+        # Store the trained model
+        self.merges = merges
+        
+        # Build encoder vocabulary
+        token_to_id = {token: i for i, token in enumerate(vocab.keys())}
+        
+        # Create the encoder
+        self.encoder = Encoder(token_to_id)
+        
+        # Add special tokens if needed
+        if self.special_tokens:
+            self.add_special_tokens(self.special_tokens.get_special_tokens_dict())
+        
+        self._is_trained = True
+        self.cache = {}  # Reset cache
+        
+        self.logger.info(f"BPE training completed. Vocabulary size: {self.encoder.vocab_size}")
+    
+    def encode(
+        self, 
+        text: str, 
+        text_pair: Optional[str] = None,
+        add_special_tokens: bool = True,
+        return_tokens: bool = False
+    ) -> TokenizedOutput:
+        """Encode a text (or text pair) into token IDs.
+        
+        Args:
+            text: Text to encode
+            text_pair: Optional paired text (e.g., for sequence-pair tasks)
+            add_special_tokens: Whether to add special tokens
+            return_tokens: Whether to return the string tokens
+            
+        Returns:
+            TokenizedOutput object with tokenization results
+        """
+        if not self.is_trained:
+            raise TokenizationError("Tokenizer must be trained before encoding")
+        
+        # Preprocess and tokenize
+        text_tokens = self._bpe_encode(text)
+        text_ids = [self.token_to_id(token) for token in text_tokens]
+        
+        # Handle text pair if provided
+        if text_pair:
+            pair_tokens = self._bpe_encode(text_pair)
+            pair_ids = [self.token_to_id(token) for token in pair_tokens]
+            
+            # Create token type IDs (0 for first sequence, 1 for second)
+            token_type_ids = [0] * len(text_ids) + [1] * len(pair_ids)
+            input_ids = text_ids + pair_ids
+            
+            # Track tokens if requested
+            tokens = text_tokens + pair_tokens if return_tokens else None
+        else:
+            token_type_ids = [0] * len(text_ids)
+            input_ids = text_ids
+            tokens = text_tokens if return_tokens else None
+        
+        # Add special tokens if requested
+        if add_special_tokens and self.special_tokens:
+            if text_pair:
+                # Add format: [CLS] X [SEP] Y [SEP]
+                cls_id = self.special_tokens.cls_token_id
+                sep_id = self.special_tokens.sep_token_id
+                
+                if cls_id is not None and sep_id is not None:
+                    special_input_ids = [cls_id] + text_ids + [sep_id] + pair_ids + [sep_id]
+                    special_token_type_ids = [0] + token_type_ids[:len(text_ids)] + [0] + token_type_ids[len(text_ids):] + [1]
+                    special_tokens_mask = [1] + [0] * len(text_ids) + [1] + [0] * len(pair_ids) + [1]
+                    
+                    # Update
+                    input_ids = special_input_ids
+                    token_type_ids = special_token_type_ids
+                    
+                    # Update tokens if tracking
+                    if tokens:
+                        cls_token = self.id_to_token(cls_id)
+                        sep_token = self.id_to_token(sep_id)
+                        tokens = [cls_token] + text_tokens + [sep_token] + pair_tokens + [sep_token]
+            else:
+                # Add format: [CLS] X [SEP]
+                cls_id = self.special_tokens.cls_token_id
+                sep_id = self.special_tokens.sep_token_id
+                
+                if cls_id is not None and sep_id is not None:
+                    special_input_ids = [cls_id] + text_ids + [sep_id]
+                    special_token_type_ids = [0] + token_type_ids + [0]
+                    special_tokens_mask = [1] + [0] * len(text_ids) + [1]
+                    
+                    # Update
+                    input_ids = special_input_ids
+                    token_type_ids = special_token_type_ids
+                    
+                    # Update tokens if tracking
+                    if tokens:
+                        cls_token = self.id_to_token(cls_id)
+                        sep_token = self.id_to_token(sep_id)
+                        tokens = [cls_token] + text_tokens + [sep_token]
+        else:
+            special_tokens_mask = [0] * len(input_ids)
+        
+        # Apply truncation if needed
+        input_ids, token_type_ids, overflowing_tokens = self.apply_truncation(
+            input_ids=input_ids,
+            token_type_ids=token_type_ids
+        )
+        
+        # Apply padding if needed
+        input_ids, attention_mask, token_type_ids = self.apply_padding(
+            input_ids=input_ids,
+            token_type_ids=token_type_ids
+        )
+        
+        # Handle return options
+        result = TokenizedOutput(
+            input_ids=input_ids,
+            attention_mask=attention_mask if self.options.return_attention_mask else None,
+            token_type_ids=token_type_ids if self.options.return_token_type_ids else None,
+            special_tokens_mask=special_tokens_mask if self.options.return_special_tokens_mask else None,
+            overflowing_tokens=overflowing_tokens if self.options.return_overflowing_tokens else None,
+            length=len(input_ids) if self.options.return_length else None,
+            tokens=tokens
+        )
+        
+        return result
+    
+    def decode(
+        self, 
+        token_ids: List[int], 
+        skip_special_tokens: bool = True
+    ) -> str:
+        """Decode token IDs back to text.
+        
+        Args:
+            token_ids: List of token IDs to decode
+            skip_special_tokens: Whether to skip special tokens in output
+            
+        Returns:
+            Decoded text
+        """
+        if not self.is_trained:
+            raise TokenizationError("Tokenizer must be trained before decoding")
+        
+        # Filter special tokens if requested
+        if skip_special_tokens and self.special_tokens:
+            token_ids = [id for id in token_ids if id not in self.special_tokens.all_special_ids]
+        
+        # Convert IDs to tokens
+        tokens = [self.id_to_token(id) for id in token_ids]
+        
+        # Merge tokens (handling byte-level encoding)
+        text = "".join(tokens)
+        
+        # Convert from byte-level encoding back to UTF-8
+        bytes_tokens = []
+        for char in text:
+            if char in self.byte_decoder:
+                bytes_tokens.append(self.byte_decoder[char])
+        
+        # Decode bytes to text
+        try:
+            text = bytes(bytes_tokens).decode("utf-8", errors="replace")
+        except Exception as e:
+            self.logger.warning(f"Error decoding bytes to UTF-8: {e}")
+            text = "".join(chr(b) for b in bytes_tokens)
+        
+        return text
+    
+    def save(self, path: Union[str, Path], **kwargs) -> None:
+        """Save the tokenizer to a directory.
+        
+        Args:
+            path: Directory path to save to
+            **kwargs: Additional saving parameters
+        """
+        path = Path(path)
+        path.mkdir(parents=True, exist_ok=True)
+        
+        # Save merges
+        with open(path / "merges.json", "w", encoding="utf-8") as f:
+            # Convert tuple keys to strings for JSON serialization
+            serializable_merges = {f"{k[0]},{k[1]}": v for k, v in self.merges.items()}
+            json.dump(serializable_merges, f, ensure_ascii=False, indent=2)
+        
+        # Save vocabulary
+        if self.encoder:
+            vocab = self.encoder.get_vocab()
+            with open(path / "vocab.json", "w", encoding="utf-8") as f:
+                json.dump(vocab, f, ensure_ascii=False, indent=2)
+        
+        # Save configuration
+        config = {
+            "tokenizer_type": self.tokenizer_type.value,
+            "vocab_size": self.vocab_size,
+            "pre_tokenizer_pattern": self.pre_tokenizer_pattern,
+            "special_tokens": self.special_tokens.get_special_tokens_dict() if self.special_tokens else {},
+            "options": self.options.dict() if self.options else {},
+        }
+        with open(path / "config.json", "w", encoding="utf-8") as f:
+            json.dump(config, f, ensure_ascii=False, indent=2)
+        
+        self.logger.info(f"Saved BPE tokenizer to {path}")
+    
+    @classmethod
+    def load(cls, path: Union[str, Path], **kwargs) -> "BPETokenizer":
+        """Load a tokenizer from a directory.
+        
+        Args:
+            path: Directory path to load from
+            **kwargs: Additional loading parameters
+            
+        Returns:
+            Loaded tokenizer instance
+        """
+        path = Path(path)
+        
+        # Load configuration
+        with open(path / "config.json", "r", encoding="utf-8") as f:
+            config = json.load(f)
+        
+        # Load vocabulary
+        with open(path / "vocab.json", "r", encoding="utf-8") as f:
+            vocab = json.load(f)
+        
+        # Load merges
+        with open(path / "merges.json", "r", encoding="utf-8") as f:
+            serialized_merges = json.load(f)
+            # Convert string keys back to tuples
+            merges = {tuple(k.split(",")): v for k, v in serialized_merges.items()}
+        
+        # Create special tokens
+        special_tokens = SpecialTokens()
+        special_tokens.register_special_tokens(config.get("special_tokens", {}))
+        
+        # Create options
+        options = TokenizerOptions(**config.get("options", {}))
+        
+        # Create encoder
+        encoder = Encoder(vocab)
+        
+        # Create the tokenizer
+        tokenizer = cls(
+            vocab_size=config["vocab_size"],
+            encoder=encoder,
+            special_tokens=special_tokens,
+            options=options,
+            merges=merges,
+            pre_tokenizer_pattern=config.get("pre_tokenizer_pattern", r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
+        )
+        
+        # Mark as trained
+        tokenizer._is_trained = True
+        
+        logger.info(f"Loaded BPE tokenizer from {path}")
+        return tokenizer
+```
+
+### 3. Encoder Implementation
+
+```python
+# src/tokenizers/encoding/encoder.py
+from typing import Dict, List, Optional, Set, Tuple, Union
+
+
+class Encoder:
+    """Token encoder component for converting between tokens and IDs."""
+    
+    def __init__(self, token_to_id: Dict[str, int]):
+        """Initialize the encoder with a vocabulary.
+        
+        Args:
+            token_to_id: Dictionary mapping tokens to their IDs
+        """
+        self.token_to_id_map = token_to_id
+        self.id_to_token_map = {v: k for k, v in token_to_id.items()}
+        self.added_tokens: Set[str] = set()
+        self.special_tokens: Dict[str, str] = {}
+    
+    @property
+    def vocab_size(self) -> int:
+        """Get the vocabulary size."""
+        return len(self.token_to_id_map)
+    
+    def get_vocab(self) -> Dict[str, int]:
+        """Get the vocabulary mapping.
+        
+        Returns:
+            Dictionary mapping tokens to IDs
+        """
+        return self.token_to_id_map.copy()
+    
+    def token_to_id(self, token: str) -> int:
+        """Convert a token to its ID.
+        
+        Args:
+            token: Token to convert
+            
+        Returns:
+            Token ID or 0 if not found (UNK token)
+        """
+        return self.token_to_id_map.get(token, 0)  # Default to UNK (0)
+    
+    def id_to_token(self, id: int) -> str:
+        """Convert an ID to its token.
+        
+        Args:
+            id: ID to convert
+            
+        Returns:
+            Token string or "[UNK]" if not found
+        """
+        return self.id_to_token_map.get(id, "[UNK]")
+    
+    def encode(self, tokens: List[str]) -> List[int]:
+        """Encode a list of tokens to IDs.
+        
+        Args:
+            tokens: List of tokens to encode
+            
+        Returns:
+            List of token IDs
+        """
+        return [self.token_to_id(token) for token in tokens]
+    
+    def decode(self, ids: List[int]) -> List[str]:
+        """Decode a list of IDs to tokens.
+        
+        Args:
+            ids: List of IDs to decode
+            
+        Returns:
+            List of tokens
+        """
+        return [self.id_to_token(id) for id in ids]
+    
+    def add_tokens(self, tokens: List[str]) -> int:
+        """Add new tokens to the vocabulary.
+        
+        Args:
+            tokens: List of tokens to add
+            
+        Returns:
+            Number of tokens actually added
+        """
+        added = 0
+        for token in tokens:
+            if token not in self.token_to_id_map:
+                new_id = len(self.token_to_id_map)
+                self.token_to_id_map[token] = new_id
+                self.id_to_token_map[new_id] = token
+                self.added_tokens.add(token)
+                added += 1
+        return added
+    
+    def add_special_token(self, token: str, token_type: str) -> bool:
+        """Add a special token to the vocabulary.
+        
+        Args:
+            token: Special token to add
+            token_type: Type of special token (e.g., cls, sep, etc.)
+            
+        Returns:
+            Whether the token was added
+        """
+        if token not in self.token_to_id_map:
+            new_id = len(self.token_to_id_map)
+            self.token_to_id_map[token] = new_id
+            self.id_to_token_map[new_id] = token
+            self.special_tokens[token_type] = token
+            return True
+        
+        # Token already exists, just mark it as special
+        self.special_tokens[token_type] = token
+        return False
+    
+    def is_special_token(self, token: str) -> bool:
+        """Check if a token is a special token.
+        
+        Args:
+            token: Token to check
+            
+        Returns:
+            Whether the token is a special token
+        """
+        return token in self.special_tokens.values()
+```
+
+### 4. Special Tokens Handler
+
+```python
+# src/tokenizers/encoding/special_tokens.py
+from typing import Dict, List, Optional, Set
+
+
+class SpecialTokens:
+    """Handler for special tokens used in tokenization."""
+    
+    def __init__(
+        self,
+        pad_token: str = "[PAD]",
+        unk_token: str = "[UNK]",
+        cls_token: Optional[str] = "[CLS]",
+        sep_token: Optional[str] = "[SEP]",
+        mask_token: Optional[str] = "[MASK]",
+        bos_token: Optional[str] = None,
+        eos_token: Optional[str] = None,
+        additional_special_tokens: Optional[List[str]] = None,
+    ):
+        """Initialize special tokens handler.
+        
+        Args:
+            pad_token: Padding token
+            unk_token: Unknown token
+            cls_token: Classification token (for BERT-like models)
+            sep_token: Separator token (for BERT-like models)
+            mask_token: Mask token (for BERT-like models)
+            bos_token: Beginning of sequence token (for GPT-like models)
+            eos_token: End of sequence token (for GPT-like models)
+            additional_special_tokens: Other special tokens
+        """
+        self.special_tokens = {}
+        self.special_token_ids = {}
+        
+        # Set default tokens
+        self.register_special_token("pad_token", pad_token)
+        self.register_special_token("unk_token", unk_token)
+        
+        # Set optional tokens
+        if cls_token:
+            self.register_special_token("cls_token", cls_token)
+        if sep_token:
+            self.register_special_token("sep_token", sep_token)
+        if mask_token:
+            self.register_special_token("mask_token", mask_token)
+        if bos_token:
+            self.register_special_token("bos_token", bos_token)
+        if eos_token:
+            self.register_special_token("eos_token", eos_token)
+        
+        # Additional special tokens
+        self.additional_special_tokens = set(additional_special_tokens or [])
+    
+    def register_special_token(self, token_type: str, token: str) -> None:
+        """Register a special token.
+        
+        Args:
+            token_type: Type of token (e.g., pad_token)
+            token: The token string
+        """
+        self.special_tokens[token_type] = token
+    
+    def register_special_token_id(self, token_type: str, token_id: int) -> None:
+        """Register a special token ID.
+        
+        Args:
+            token_type: Type of token (e.g., pad_token)
+            token_id: The token ID
+        """
+        self.special_token_ids[token_type] = token_id
+    
+    def register_special_tokens(self, special_tokens_dict: Dict[str, str]) -> None:
+        """Register multiple special tokens from a dictionary.
+        
+        Args:
+            special_tokens_dict: Dictionary mapping token types to tokens
+        """
+        for token_type, token in special_tokens_dict.items():
+            self.register_special_token(token_type, token)
+    
+    def get_special_tokens_dict(self) -> Dict[str, str]:
+        """Get the dictionary of special tokens.
+        
+        Returns:
+            Dictionary mapping token types to tokens
+        """
+        return self.special_tokens.copy()
+    
+    @property
+    def pad_token(self) -> Optional[str]:
+        """Get the padding token."""
+        return self.special_tokens.get("pad_token")
+    
+    @property
+    def pad_token_id(self) -> Optional[int]:
+        """Get the padding token ID."""
+        return self.special_token_ids.get("pad_token")
+    
+    @property
+    def unk_token(self) -> Optional[str]:
+        """Get the unknown token."""
+        return self.special_tokens.get("unk_token")
+    
+    @property
+    def unk_token_id(self) -> Optional[int]:
+        """Get the unknown token ID."""
+        return self.special_token_ids.get("unk_token")
+    
+    @property
+    def cls_token(self) -> Optional[str]:
+        """Get the classification token."""
+        return self.special_tokens.get("cls_token")
+    
+    @property
+    def cls_token_id(self) -> Optional[int]:
+        """Get the classification token ID."""
+        return self.special_token_ids.get("cls_token")
+    
+    @property
+    def sep_token(self) -> Optional[str]:
+        """Get the separator token."""
+        return self.special_tokens.get("sep_token")
+    
+    @property
+    def sep_token_id(self) -> Optional[int]:
+        """Get the separator token ID."""
+        return self.special_token_ids.get("sep_token")
+    
+    @property
+    def mask_token(self) -> Optional[str]:
+        """Get the mask token."""
+        return self.special_tokens.get("mask_token")
+    
+    @property
+    def mask_token_id(self) -> Optional[int]:
+        """Get the mask token ID."""
+        return self.special_token_ids.get("mask_token")
+    
+    @property
+    def bos_token(self) -> Optional[str]:
+        """Get the beginning of sequence token."""
+        return self.special_tokens.get("bos_token")
+    
+    @property
+    def bos_token_id(self) -> Optional[int]:
+        """Get the beginning of sequence token ID."""
+        return self.special_token_ids.get("bos_token")
+    
+    @property
+    def eos_token(self) -> Optional[str]:
+        """Get the end of sequence token."""
+        return self.special_tokens.get("eos_token")
+    
+    @property
+    def eos_token_id(self) -> Optional[int]:
+        """Get the end of sequence token ID."""
+        return self.special_token_ids.get("eos_token")
+    
+    @property
+    def all_special_tokens(self) -> List[str]:
+        """Get all special tokens.
+        
+        Returns:
+            List of all special tokens
+        """
+        tokens = list(self.special_tokens.values())
+        tokens.extend(self.additional_special_tokens)
+        return tokens
+    
+    @property
+    def all_special_ids(self) -> List[int]:
+        """Get all special token IDs.
+        
+        Returns:
+            List of all special token IDs
+        """
+        return list(self.special_token_ids.values())
+```
+
+### 5. Normalization Engine
+
+```python
+# src/tokenizers/normalization/normalizers.py
+import re
+import unicodedata
+from abc import ABC, abstractmethod
+from typing import List, Optional, Union
+
+from tokenizers.normalization.unicode import UnicodeNormalizer
+
+
+class Normalizer(ABC):
+    """Base class for text normalizers."""
+    
+    @abstractmethod
+    def normalize(self, text: str) -> str:
+        """Normalize a text.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Normalized text
+        """
+        pass
+
+
+class ComposeNormalizer(Normalizer):
+    """Composite normalizer that applies multiple normalizers in sequence."""
+    
+    def __init__(self, normalizers: List[Normalizer]):
+        """Initialize with a list of normalizers.
+        
+        Args:
+            normalizers: List of normalizers to apply in sequence
+        """
+        self.normalizers = normalizers
+    
+    def normalize(self, text: str) -> str:
+        """Apply all normalizers in sequence.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Normalized text
+        """
+        for normalizer in self.normalizers:
+            text = normalizer.normalize(text)
+        return text
+
+
+class LowercaseNormalizer(Normalizer):
+    """Normalizer that converts text to lowercase."""
+    
+    def normalize(self, text: str) -> str:
+        """Convert text to lowercase.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Lowercase text
+        """
+        return text.lower()
+
+
+class StripNormalizer(Normalizer):
+    """Normalizer that strips whitespace."""
+    
+    def __init__(self, strip_left: bool = True, strip_right: bool = True):
+        """Initialize with stripping options.
+        
+        Args:
+            strip_left: Whether to strip leading whitespace
+            strip_right: Whether to strip trailing whitespace
+        """
+        self.strip_left = strip_left
+        self.strip_right = strip_right
+    
+    def normalize(self, text: str) -> str:
+        """Strip whitespace from text.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Stripped text
+        """
+        if self.strip_left and self.strip_right:
+            return text.strip()
+        elif self.strip_left:
+            return text.lstrip()
+        elif self.strip_right:
+            return text.rstrip()
+        return text
+
+
+class RegexNormalizer(Normalizer):
+    """Normalizer that applies regex replacements."""
+    
+    def __init__(self, patterns_and_replacements: List[tuple]):
+        """Initialize with patterns and replacements.
+        
+        Args:
+            patterns_and_replacements: List of (pattern, replacement) tuples
+        """
+        self.patterns = []
+        for pattern, replacement in patterns_and_replacements:
+            if isinstance(pattern, str):
+                pattern = re.compile(pattern)
+            self.patterns.append((pattern, replacement))
+    
+    def normalize(self, text: str) -> str:
+        """Apply regex replacements to text.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Normalized text
+        """
+        for pattern, replacement in self.patterns:
+            text = pattern.sub(replacement, text)
+        return text
+
+
+class WhitespaceNormalizer(Normalizer):
+    """Normalizer that normalizes whitespace."""
+    
+    def normalize(self, text: str) -> str:
+        """Normalize whitespace in text.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            Text with normalized whitespace
+        """
+        # Replace multiple spaces with single space
+        text = re.sub(r'\s+', ' ', text)
+        return text
+
+
+class SequenceNormalizer(Normalizer):
+    """Factory class for creating common normalizer sequences."""
+    
+    @staticmethod
+    def default() -> ComposeNormalizer:
+        """Create a default normalizer sequence.
+        
+        Returns:
+            Composite normalizer with common normalization steps
+        """
+        return ComposeNormalizer([
+            UnicodeNormalizer(),
+            LowercaseNormalizer(),
+            StripNormalizer(),
+            WhitespaceNormalizer()
+        ])
+    
+    @staticmethod
+    def bert_normalizer() -> ComposeNormalizer:
+        """Create a normalizer sequence for BERT-like models.
+        
+        Returns:
+            Composite normalizer for BERT-like models
+        """
+        return ComposeNormalizer([
+            UnicodeNormalizer(form="NFC"),
+            StripNormalizer(),
+            WhitespaceNormalizer()
+        ])
+    
+    @staticmethod
+    def gpt_normalizer() -> ComposeNormalizer:
+        """Create a normalizer sequence for GPT-like models.
+        
+        Returns:
+            Composite normalizer for GPT-like models
+        """
+        return ComposeNormalizer([
+            UnicodeNormalizer(form="NFC"),
+            RegexNormalizer([
+                # Fix broken UTF-8 characters
+                (r'â', "'"),
+                (r'â', '"'),
+                (r'â', '"'),
+                # Remove control characters
+                (r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]', ''),
+            ]),
+            StripNormalizer(),
+            WhitespaceNormalizer()
+        ])
+```
+
+### 6. Model Adapters
+
+```python
+# src/tokenizers/models/bert.py
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
+from loguru import logger
+
+from tokenizers.algorithms.wordpiece import WordpieceTokenizer
+from tokenizers.core.base_tokenizer import TokenizerOptions
+from tokenizers.encoding.special_tokens import SpecialTokens
+from tokenizers.normalization.normalizers import SequenceNormalizer
+
+
+class BertTokenizer:
+    """Adapter for BERT tokenizer."""
+    
+    @staticmethod
+    def from_pretrained(
+        model_name_or_path: Union[str, Path],
+        do_lower_case: bool = True,
+        max_length: Optional[int] = None,
+        **kwargs
+    ) -> WordpieceTokenizer:
+        """Load a BERT tokenizer from a pretrained model.
+        
+        Args:
+            model_name_or_path: Model name or path
+            do_lower_case: Whether to lowercase text
+            max_length: Maximum sequence length
+            **kwargs: Additional parameters
+            
+        Returns:
+            WordpieceTokenizer instance
+        """
+        logger.info(f"Loading BERT tokenizer from {model_name_or_path}")
+        
+        # Determine if it's a local path or a model name
+        path = Path(model_name_or_path)
+        if path.exists() and path.is_dir():
+            # Load from local path
+            try:
+                tokenizer = WordpieceTokenizer.load(path)
+                logger.info(f"Loaded BERT tokenizer from {path}")
+                return tokenizer
+            except Exception as e:
+                logger.error(f"Failed to load BERT tokenizer from {path}: {e}")
+                logger.info("Falling back to creating a new tokenizer")
+        
+        # Create a new tokenizer with BERT defaults
+        special_tokens = SpecialTokens(
+            pad_token="[PAD]",
+            unk_token="[UNK]",
+            cls_token="[CLS]",
+            sep_token="[SEP]",
+            mask_token="[MASK]"
+        )
+        
+        options = TokenizerOptions(
+            add_bos_token=False,
+            add_eos_token=False,
+            add_padding_token=True,
+            truncation_strategy="longest_first",
+            max_length=max_length or 512,
+            padding_strategy="max_length",
+            return_attention_mask=True,
+            return_token_type_ids=True,
+            return_special_tokens_mask=False
+        )
+        
+        # Use BERT-specific normalizer
+        normalizer = SequenceNormalizer.bert_normalizer()
+        if do_lower_case:
+            # Add lowercase to the normalizer sequence
+            normalizer.normalizers.insert(1, LowercaseNormalizer())
+        
+        # Initialize the tokenizer
+        tokenizer = WordpieceTokenizer(
+            vocab_size=30522,  # Default BERT vocab size
+            normalizer=normalizer,
+            special_tokens=special_tokens,
+            options=options
+        )
+        
+        logger.info(f"Created new BERT tokenizer with vocab size {tokenizer.vocab_size}")
+        
+        # Try to load vocab and merges if available
+        if kwargs.get("vocab_file"):
+            vocab_file = kwargs["vocab_file"]
+            logger.info(f"Loading vocabulary from {vocab_file}")
+            # Implementation for loading vocabulary from file
+        
+        return tokenizer
+    
+    @staticmethod
+    def from_huggingface(
+        model_name: str,
+        local_files_only: bool = False,
+        **kwargs
+    ) -> WordpieceTokenizer:
+        """Load a BERT tokenizer from Hugging Face.
+        
+        Args:
+            model_name: Model name on Hugging Face
+            local_files_only: Whether to only use local files
+            **kwargs: Additional parameters
+            
+        Returns:
+            WordpieceTokenizer instance
+        """
+        try:
+            from huggingface_hub import snapshot_download
+            from transformers import BertTokenizer as HFBertTokenizer
+            
+            # Download the model
+            if not local_files_only:
+                logger.info(f"Downloading BERT tokenizer {model_name} from Hugging Face")
+                path = snapshot_download(model_name, local_files_only=local_files_only)
+            else:
+                path = model_name
+            
+            # Load the HF tokenizer to extract configuration
+            hf_tokenizer = HFBertTokenizer.from_pretrained(path)
+            
+            # Extract vocabulary
+            vocab = hf_tokenizer.get_vocab()
+            
+            # Create options
+            special_tokens = SpecialTokens(
+                pad_token=hf_tokenizer.pad_token,
+                unk_token=hf_tokenizer.unk_token,
+                cls_token=hf_tokenizer.cls_token,
+                sep_token=hf_tokenizer.sep_token,
+                mask_token=hf_tokenizer.mask_token
+            )
+            
+            options = TokenizerOptions(
+                add_bos_token=False,
+                add_eos_token=False,
+                add_padding_token=True,
+                truncation_strategy="longest_first",
+                max_length=hf_tokenizer.model_max_length,
+                padding_strategy="max_length",
+                return_attention_mask=True,
+                return_token_type_ids=True,
+                return_special_tokens_mask=False
+            )
+            
+            # Create normalizer based on whether the tokenizer is cased or not
+            do_lower_case = not hf_tokenizer.do_lower_case
+            normalizer = SequenceNormalizer.bert_normalizer()
+            if do_lower_case:
+                normalizer.normalizers.insert(1, LowercaseNormalizer())
+            
+            # Initialize and train the tokenizer
+            tokenizer = WordpieceTokenizer(
+                vocab_size=len(vocab),
+                normalizer=normalizer,
+                special_tokens=special_tokens,
+                options=options
+            )
+            
+            # Set the vocabulary directly
+            tokenizer.encoder.token_to_id_map = vocab
+            tokenizer.encoder.id_to_token_map = {v: k for k, v in vocab.items()}
+            tokenizer._is_trained = True
+            
+            # Register special token IDs
+            for token_type in ["pad_token", "unk_token", "cls_token", "sep_token", "mask_token"]:
+                token = getattr(hf_tokenizer, token_type)
+                token_id = hf_tokenizer.convert_tokens_to_ids([token])[0]
+                special_tokens.register_special_token_id(token_type, token_id)
+            
+            logger.info(f"Successfully loaded BERT tokenizer {model_name} from Hugging Face")
+            return tokenizer
+            
+        except ImportError:
+            logger.error("transformers and huggingface_hub packages are required to load from Hugging Face")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to load BERT tokenizer from Hugging Face: {e}")
+            raise
+
+
+# src/tokenizers/models/gpt.py
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
+from loguru import logger
+
+from tokenizers.algorithms.bpe import BPETokenizer
+from tokenizers.core.base_tokenizer import TokenizerOptions
+from tokenizers.encoding.special_tokens import SpecialTokens
+from tokenizers.normalization.normalizers import SequenceNormalizer
+
+
+class GPTTokenizer:
+    """Adapter for GPT tokenizer."""
+    
+    @staticmethod
+    def from_pretrained(
+        model_name_or_path: Union[str, Path],
+        max_length: Optional[int] = None,
+        **kwargs
+    ) -> BPETokenizer:
+        """Load a GPT tokenizer from a pretrained model.
+        
+        Args:
+            model_name_or_path: Model name or path
+            max_length: Maximum sequence length
+            **kwargs: Additional parameters
+            
+        Returns:
+            BPETokenizer instance
+        """
+        logger.info(f"Loading GPT tokenizer from {model_name_or_path}")
+        
+        # Determine if it's a local path or a model name
+        path = Path(model_name_or_path)
+        if path.exists() and path.is_dir():
+            # Load from local path
+            try:
+                tokenizer = BPETokenizer.load(path)
+                logger.info(f"Loaded GPT tokenizer from {path}")
+                return tokenizer
+            except Exception as e:
+                logger.error(f"Failed to load GPT tokenizer from {path}: {e}")
+                logger.info("Falling back to creating a new tokenizer")
+        
+        # Create a new tokenizer with GPT defaults
+        special_tokens = SpecialTokens(
+            pad_token="<pad>",
+            unk_token="<unk>",
+            bos_token="<s>",
+            eos_token="</s>"
+        )
+        
+        options = TokenizerOptions(
+            add_bos_token=True,
+            add_eos_token=True,
+            add_padding_token=True,
+            truncation_strategy="longest_first",
+            max_length=max_length or 1024,
+            padding_strategy="max_length",
+            return_attention_mask=True,
+            return_token_type_ids=False,
+            return_special_tokens_mask=False
+        )
+        
+        # Use GPT-specific normalizer
+        normalizer = SequenceNormalizer.gpt_normalizer()
+        
+        # Initialize the tokenizer
+        tokenizer = BPETokenizer(
+            vocab_size=50257,  # Default GPT-2 vocab size
+            normalizer=normalizer,
+            special_tokens=special_tokens,
+            options=options
+        )
+        
+        logger.info(f"Created new GPT tokenizer with vocab size {tokenizer.vocab_size}")
+        
+        return tokenizer
+    
+    @staticmethod
+    def from_huggingface(
+        model_name: str,
+        local_files_only: bool = False,
+        **kwargs
+    ) -> BPETokenizer:
+        """Load a GPT tokenizer from Hugging Face.
+        
+        Args:
+            model_name: Model name on Hugging Face
+            local_files_only: Whether to only use local files
+            **kwargs: Additional parameters
+            
+        Returns:
+            BPETokenizer instance
+        """
+        try:
+            from huggingface_hub import snapshot_download
+            from transformers import GPT2Tokenizer, GPT2TokenizerFast
+            
+            # Download the model
+            if not local_files_only:
+                logger.info(f"Downloading GPT tokenizer {model_name} from Hugging Face")
+                path = snapshot_download(model_name, local_files_only=local_files_only)
+            else:
+                path = model_name
+            
+            # Try fast tokenizer first, fall back to slower one
+            try:
+                hf_tokenizer = GPT2TokenizerFast.from_pretrained(path)
+            except:
+                hf_tokenizer = GPT2Tokenizer.from_pretrained(path)
+            
+            # Extract vocabulary and merges
+            vocab = hf_tokenizer.get_vocab()
+            
+            # Create options
+            special_tokens = SpecialTokens(
+                pad_token=hf_tokenizer.pad_token or "<pad>",
+                unk_token=hf_tokenizer.unk_token or "<unk>",
+                bos_token=hf_tokenizer.bos_token or "<s>",
+                eos_token=hf_tokenizer.eos_token or "</s>"
+            )
+            
+            options = TokenizerOptions(
+                add_bos_token=True,
+                add_eos_token=True,
+                add_padding_token=True,
+                truncation_strategy="longest_first",
+                max_length=hf_tokenizer.model_max_length,
+                padding_strategy="max_length",
+                return_attention_mask=True,
+                return_token_type_ids=False,
+                return_special_tokens_mask=False
+            )
+            
+            # Use GPT-specific normalizer
+            normalizer = SequenceNormalizer.gpt_normalizer()
+            
+            # Initialize the tokenizer
+            tokenizer = BPETokenizer(
+                vocab_size=len(vocab),
+                normalizer=normalizer,
+                special_tokens=special_tokens,
+                options=options
+            )
+            
+            # Set the vocabulary directly
+            tokenizer.encoder.token_to_id_map = vocab
+            tokenizer.encoder.id_to_token_map = {v: k for k, v in vocab.items()}
+            
+            # Load merges
+            merges = {}
+            try:
+                merges_file = Path(path) / "merges.txt"
+                with open(merges_file, "r", encoding="utf-8") as f:
+                    for i, line in enumerate(f):
+                        if line.startswith("#"):
+                            continue
+                        parts = line.strip().split()
+                        if len(parts) == 2:
+                            merges[(parts[0], parts[1])] = i
+            except Exception as e:
+                logger.warning(f"Failed to load merges: {e}")
+            
+            tokenizer.merges = merges
+            tokenizer._is_trained = True
+            
+            # Register special token IDs
+            for token_type in ["pad_token", "unk_token", "bos_token", "eos_token"]:
+                token = getattr(hf_tokenizer, token_type, None)
+                if token:
+                    token_id = hf_tokenizer.convert_tokens_to_ids([token])[0]
+                    special_tokens.register_special_token_id(token_type, token_id)
+            
+            logger.info(f"Successfully loaded GPT tokenizer {model_name} from Hugging Face")
+            return tokenizer
+            
+        except ImportError:
+            logger.error("transformers and huggingface_hub packages are required to load from Hugging Face")
+            raise
+        except Exception as e:
+            logger.error(f"Failed to load GPT tokenizer from Hugging Face: {e}")
+            raise
+```
+
+### 7. Performance Monitoring
+
+```python
+# src/tokenizers/performance/metrics.py
+import time
+from dataclasses import dataclass
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Union
+
+import numpy as np
+
+
+@dataclass
+class TokenizationMetrics:
+    """Metrics for tokenization performance."""
+    
+    # Tokenization counts
+    total_texts: int = 0
+    total_tokens: int = 0
+    
+    # Character statistics
+    chars_per_token_mean: float = 0.0
+    chars_per_token_std: float = 0.0
+    
+    # Timing metrics (in milliseconds)
+    normalization_time_ms: float = 0.0
+    tokenization_time_ms: float = 0.0
+    encoding_time_ms: float = 0.0
+    total_time_ms: float = 0.0
+    
+    # Tokens per second
+    tokens_per_second: float = 0.0
+    texts_per_second: float = 0.0
+    
+    # Memory usage
+    peak_memory_mb: float = 0.0
+    
+    def to_dict(self) -> Dict[str, float]:
+        """Convert metrics to a dictionary."""
+        return {
+            "total_texts": self.total_texts,
+            "total_tokens": self.total_tokens,
+            "chars_per_token_mean": self.chars_per_token_mean,
+            "chars_per_token_std": self.chars_per_token_std,
+            "normalization_time_ms": self.normalization_time_ms,
+            "tokenization_time_ms": self.tokenization_time_ms,
+            "encoding_time_ms": self.encoding_time_ms,
+            "total_time_ms": self.total_time_ms,
+            "tokens_per_second": self.tokens_per_second,
+            "texts_per_second": self.texts_per_second,
+            "peak_memory_mb": self.peak_memory_mb,
+        }
+
+
+class MetricsTracker:
+    """Utility for tracking tokenization metrics."""
+    
+    def __init__(self):
+        """Initialize the metrics tracker."""
+        self.metrics = TokenizationMetrics()
+        self.timing_stack = []
+        self.current_phase = None
+    
+    def start_phase(self, phase: str) -> None:
+        """Start tracking time for a phase.
+        
+        Args:
+            phase: Name of the phase
+        """
+        self.current_phase = phase
+        self.timing_stack.append((phase, time.time()))
+    
+    def end_phase(self) -> float:
+        """End tracking time for the current phase.
+        
+        Returns:
+            Duration of the phase in milliseconds
+        """
+        if not self.timing_stack:
+            return 0.0
+        
+        phase, start_time = self.timing_stack.pop()
+        duration_ms = (time.time() - start_time) * 1000
+        
+        # Update the appropriate metric
+        if phase == "normalization":
+            self.metrics.normalization_time_ms += duration_ms
+        elif phase == "tokenization":
+            self.metrics.tokenization_time_ms += duration_ms
+        elif phase == "encoding":
+            self.metrics.encoding_time_ms += duration_ms
+        
+        self.current_phase = self.timing_stack[-1][0] if self.timing_stack else None
+        
+        return duration_ms
+    
+    def track_encoding(
+        self, 
+        num_texts: int, 
+        tokens: List[List[str]], 
+        original_texts: List[str]
+    ) -> None:
+        """Track metrics for an encoding operation.
+        
+        Args:
+            num_texts: Number of texts processed
+            tokens: List of token lists
+            original_texts: Original texts
+        """
+        self.metrics.total_texts += num_texts
+        
+        # Count tokens
+        total_tokens = sum(len(t) for t in tokens)
+        self.metrics.total_tokens += total_tokens
+        
+        # Calculate characters per token
+        chars_per_token = []
+        for text, token_list in zip(original_texts, tokens):
+            if token_list:
+                chars_per_token.append(len(text) / len(token_list))
+        
+        if chars_per_token:
+            self.metrics.chars_per_token_mean = np.mean(chars_per_token)
+            self.metrics.chars_per_token_std = np.std(chars_per_token)
+        
+        # Calculate throughput
+        if self.metrics.total_time_ms > 0:
+            self.metrics.tokens_per_second = (self.metrics.total_tokens / self.metrics.total_time_ms) * 1000
+            self.metrics.texts_per_second = (self.metrics.total_texts / self.metrics.total_time_ms) * 1000
+        
+        # Estimate memory usage
+        try:
+            import psutil
+            process = psutil.Process()
+            memory_info = process.memory_info()
+            self.metrics.peak_memory_mb = memory_info.rss / (1024 * 1024)
+        except ImportError:
+            pass
+    
+    def get_metrics(self) -> TokenizationMetrics:
+        """Get the current metrics.
+        
+        Returns:
+            Current metrics
+        """
+        # Update total time
+        self.metrics.total_time_ms = (
+            self.metrics.normalization_time_ms + 
+            self.metrics.tokenization_time_ms + 
+            self.metrics.encoding_time_ms
+        )
+        
+        return self.metrics
+
+
+def track_time(phase: str) -> Callable:
+    """Decorator to track time spent in a function.
+    
+    Args:
+        phase: Name of the phase
+        
+    Returns:
+        Decorated function
+    """
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            # Check if metrics tracker exists
+            if not hasattr(self, "metrics_tracker"):
+                self.metrics_tracker = MetricsTracker()
+            
+            self.metrics_tracker.start_phase(phase)
+            result = func(self, *args, **kwargs)
+            self.metrics_tracker.end_phase()
+            
+            return result
+        return wrapper
+    return decorator
+```
+
+### 8. TokenizerServer API
+
+```python
+# src/tokenizers/server/api.py
+from typing import Dict, List, Optional, Union
+
+import uvicorn
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from tokenizers.core.base_tokenizer import BatchTokenizedOutput, TokenizedOutput
+from tokenizers.core.registry import TokenizerRegistry
+
+
+class TokenizeRequest(BaseModel):
+    """Request model for tokenization."""
+    
+    text: str = Field(..., description="Text to tokenize")
+    text_pair: Optional[str] = Field(None, description="Optional paired text")
+    add_special_tokens: bool = Field(True, description="Whether to add special tokens")
+    return_tokens: bool = Field(False, description="Whether to return string tokens")
+    tokenizer_id: str = Field(..., description="ID of the tokenizer to use")
+
+
+class TokenizeBatchRequest(BaseModel):
+    """Request model for batch tokenization."""
+    
+    texts: List[str] = Field(..., description="Texts to tokenize")
+    text_pairs: Optional[List[str]] = Field(None, description="Optional paired texts")
+    add_special_tokens: bool = Field(True, description="Whether to add special tokens")
+    return_tokens: bool = Field(False, description="Whether to return string tokens")
+    tokenizer_id: str = Field(..., description="ID of the tokenizer to use")
+
+
+class DecodeRequest(BaseModel):
+    """Request model for decoding."""
+    
+    token_ids: List[int] = Field(..., description="Token IDs to decode")
+    skip_special_tokens: bool = Field(True, description="Whether to skip special tokens")
+    tokenizer_id: str = Field(..., description="ID of the tokenizer to use")
+
+
+class DecodeBatchRequest(BaseModel):
+    """Request model for batch decoding."""
+    
+    batch_token_ids: List[List[int]] = Field(..., description="Batch of token IDs to decode")
+    skip_special_tokens: bool = Field(True, description="Whether to skip special tokens")
+    tokenizer_id: str = Field(..., description="ID of the tokenizer to use")
+
+
+class TokenizerInfo(BaseModel):
+    """Model for tokenizer information."""
+    
+    id: str = Field(..., description="Tokenizer ID")
+    type: str = Field(..., description="Tokenizer type")
+    vocab_size: int = Field(..., description="Vocabulary size")
+    is_trained: bool = Field(..., description="Whether the tokenizer is trained")
+    special_tokens: Dict[str, str] = Field(..., description="Special tokens")
+    options: Dict[str, Union[str, int, bool, None]] = Field(..., description="Tokenizer options")
+
+
+# Create the FastAPI app
+app = FastAPI(
+    title="ML Tokenization System API",
+    description="API for interacting with the ML tokenization system",
+    version="0.1.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize the tokenizer registry
+registry = TokenizerRegistry()
+
+
+@app.get("/tokenizers", response_model=List[TokenizerInfo])
+async def list_tokenizers():
+    """List all available tokenizers."""
+    tokenizers = registry.list_tokenizers()
+    
+    result = []
+    for tokenizer_id, tokenizer in tokenizers.items():
+        result.append(
+            TokenizerInfo(
+                id=tokenizer_id,
+                type=tokenizer.tokenizer_type.value,
+                vocab_size=tokenizer.vocab_size,
+                is_trained=tokenizer.is_trained,
+                special_tokens=tokenizer.special_tokens.get_special_tokens_dict() if tokenizer.special_tokens else {},
+                options=tokenizer.options.dict() if tokenizer.options else {}
+            )
+        )
+    
+    return result
+
+
+@app.post("/tokenize", response_model=TokenizedOutput)
+async def tokenize(request: TokenizeRequest):
+    """Tokenize a text."""
+    tokenizer = registry.get_tokenizer(request.tokenizer_id)
+    if not tokenizer:
+        raise HTTPException(status_code=404, detail=f"Tokenizer '{request.tokenizer_id}' not found")
+    
+    if not tokenizer.is_trained:
+        raise HTTPException(status_code=400, detail=f"Tokenizer '{request.tokenizer_id}' is not trained")
+    
+    result = tokenizer.encode(
+        text=request.text,
+        text_pair=request.text_pair,
+        add_special_tokens=request.add_special_tokens,
+        return_tokens=request.return_tokens
+    )
+    
+    return result
+
+
+@app.post("/tokenize_batch", response_model=BatchTokenizedOutput)
+async def tokenize_batch(request: TokenizeBatchRequest):
+    """Tokenize a batch of texts."""
+    tokenizer = registry.get_tokenizer(request.tokenizer_id)
+    if not tokenizer:
+        raise HTTPException(status_code=404, detail=f"Tokenizer '{request.tokenizer_id}' not found")
+    
+    if not tokenizer.is_trained:
+        raise HTTPException(status_code=400, detail=f"Tokenizer '{request.tokenizer_id}' is not trained")
+    
+    result = tokenizer.encode_batch(
+        texts=request.texts,
+        text_pairs=request.text_pairs,
+        add_special_tokens=request.add_special_tokens,
+        return_tokens=request.return_tokens
+    )
+    
+    return result
+
+
+@app.post("/decode", response_model=str)
+async def decode(request: DecodeRequest):
+    """Decode token IDs to text."""
+    tokenizer = registry.get_tokenizer(request.tokenizer_id)
+    if not tokenizer:
+        raise HTTPException(status_code=404, detail=f"Tokenizer '{request.tokenizer_id}' not found")
+    
+    if not tokenizer.is_trained:
+        raise HTTPException(status_code=400, detail=f"Tokenizer '{request.tokenizer_id}' is not trained")
+    
+    result = tokenizer.decode(
+        token_ids=request.token_ids,
+        skip_special_tokens=request.skip_special_tokens
+    )
+    
+    return result
+
+
+@app.post("/decode_batch", response_model=List[str])
+async def decode_batch(request: DecodeBatchRequest):
+    """Decode batch of token IDs to texts."""
+    tokenizer = registry.get_tokenizer(request.tokenizer_id)
+    if not tokenizer:
+        raise HTTPException(status_code=404, detail=f"Tokenizer '{request.tokenizer_id}' not found")
+    
+    if not tokenizer.is_trained:
+        raise HTTPException(status_code=400, detail=f"Tokenizer '{request.tokenizer_id}' is not trained")
+    
+    result = tokenizer.decode_batch(
+        batch_token_ids=request.batch_token_ids,
+        skip_special_tokens=request.skip_special_tokens
+    )
+    
+    return result
+
+
+@app.get("/vocabulary/{tokenizer_id}", response_model=Dict[str, int])
+async def get_vocabulary(tokenizer_id: str, limit: int = Query(100, ge=1, le=1000)):
+    """Get the vocabulary of a tokenizer."""
+    tokenizer = registry.get_tokenizer(tokenizer_id)
+    if not tokenizer:
+        raise HTTPException(status_code=404, detail=f"Tokenizer '{tokenizer_id}' not found")
+    
+    if not tokenizer.is_trained:
+        raise HTTPException(status_code=400, detail=f"Tokenizer '{tokenizer_id}' is not trained")
+    
+    vocab = tokenizer.get_vocab()
+    
+    # Limit the size of the returned vocabulary
+    if len(vocab) > limit:
+        vocab = dict(list(vocab.items())[:limit])
+    
+    return vocab
+
+
+@app.get("/metrics/{tokenizer_id}")
+async def get_metrics(tokenizer_id: str):
+    """Get performance metrics for a tokenizer."""
+    tokenizer = registry.get_tokenizer(tokenizer_id)
+    if not tokenizer:
+        raise HTTPException(status_code=404, detail=f"Tokenizer '{tokenizer_id}' not found")
+    
+    if not hasattr(tokenizer, "metrics_tracker"):
+        raise HTTPException(status_code=400, detail=f"No metrics available for tokenizer '{tokenizer_id}'")
+    
+    metrics = tokenizer.metrics_tracker.get_metrics()
+    return metrics.to_dict()
+
+
+def start_server(host: str = "0.0.0.0", port: int = 8000):
+    """Start the tokenizer API server."""
+    uvicorn.run(app, host=host, port=port)
+
+
+if __name__ == "__main__":
+    start_server()
+```
+
+### 9. Tauri Frontend (Main)
+
+```rust
+// tokenization_lab/src-tauri/src/main.rs
+#![cfg_attr(
+  all(not(debug_assertions), target_os = "windows"),
+  windows_subsystem = "windows"
+)]
+
+mod tokenization;
+mod visualization;
+mod analysis;
+
+use std::sync::Arc;
+use tauri::{Manager, State};
+use tokenization::{TokenizerState, init_tokenizers, tokenize_text, decode_tokens, get_tokenizer_info};
+
+fn main() {
+  tauri::Builder::default()
+    .setup(|app| {
+      // Initialize tokenizer state
+      let tokenizer_state = TokenizerState::new()?;
+      app.manage(Arc::new(tokenizer_state));
+      
+      // Initialize tokenizers
+      tokio::spawn(async move {
+        init_tokenizers().await;
+      });
+      
+      Ok(())
+    })
+    .invoke_handler(tauri::generate_handler![
+      tokenize_text,
+      decode_tokens,
+      get_tokenizer_info,
+      visualization::visualize_tokens,
+      visualization::generate_token_frequency_chart,
+      visualization::compare_tokenization,
+      analysis::analyze_tokenization_efficiency,
+      analysis::test_cross_model_compatibility,
+      analysis::benchmark_tokenization_speed
+    ])
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
+}
+```
+
+### 10. Tokenization Handlers for Tauri
+
+```rust
+// tokenization_lab/src-tauri/src/tokenization.rs
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use serde::{Deserialize, Serialize};
+use tauri::State;
+use reqwest::Client;
+use anyhow::{Result, anyhow};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenizerInfo {
+    id: String,
+    type_name: String,
+    vocab_size: usize,
+    is_trained: bool,
+    special_tokens: HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenizedOutput {
+    input_ids: Vec<i32>,
+    attention_mask: Option<Vec<i32>>,
+    token_type_ids: Option<Vec<i32>>,
+    special_tokens_mask: Option<Vec<i32>>,
+    tokens: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenizeRequest {
+    text: String,
+    text_pair: Option<String>,
+    add_special_tokens: bool,
+    return_tokens: bool,
+    tokenizer_id: String,
+}
+
+pub struct TokenizerState {
+    pub client: Client,
+    pub tokenizers: Mutex<Vec<TokenizerInfo>>,
+    pub api_url: String,
+}
+
+impl TokenizerState {
+    pub fn new() -> Result<Self> {
+        Ok(Self {
+            client: Client::new(),
+            tokenizers: Mutex::new(Vec::new()),
+            api_url: "http://localhost:8000".to_string(),
+        })
+    }
+}
+
+pub async fn init_tokenizers() -> Result<()> {
+    // In a real implementation, this would initialize local tokenizers
+    // or connect to a tokenization service
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn get_tokenizer_info(
+    state: State<'_, Arc<TokenizerState>>
+) -> Result<Vec<TokenizerInfo>, String> {
+    let response = state.client.get(&format!("{}/tokenizers", state.api_url))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    
+    let tokenizers: Vec<TokenizerInfo> = response.json()
+        .await
+        .map_err(|e| e.to_string())?;
+    
+    // Update the cached tokenizers
+    *state.tokenizers.lock().unwrap() = tokenizers.clone();
+    
+    Ok(tokenizers)
+}
+
+#[tauri::command]
+pub async fn tokenize_text(
+    text: String,
+    text_pair: Option<String>,
+    tokenizer_id: String,
+    add_special_tokens: bool,
+    return_tokens: bool,
+    state: State<'_, Arc<TokenizerState>>
+) -> Result<TokenizedOutput, String> {
+    let request = TokenizeRequest {
+        text,
+        text_pair,
+        add_special_tokens,
+        return_tokens,
+        tokenizer_id,
+    };
+    
+    let response = state.client.post(&format!("{}/tokenize", state.api_url))
+        .json(&request)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    
+    if !response.status().is_success() {
+        return Err(format!("API request failed: {}", response.status()));
+    }
+    
+    let result: TokenizedOutput = response.json()
+        .await
+        .map_err(|e| e.to_string())?;
+    
+    Ok(result)
+}
+
+#[tauri::command]
+pub async fn decode_tokens(
+    token_ids: Vec<i32>,
+    tokenizer_id: String,
+    skip_special_tokens: bool,
+    state: State<'_, Arc<TokenizerState>>
+) -> Result<String, String> {
+    let request = serde_json::json!({
+        "token_ids": token_ids,
+        "skip_special_tokens": skip_special_tokens,
+        "tokenizer_id": tokenizer_id,
+    });
+    
+    let response = state.client.post(&format!("{}/decode", state.api_url))
+        .json(&request)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    
+    if !response.status().is_success() {
+        return Err(format!("API request failed: {}", response.status()));
+    }
+    
+    let result: String = response.json()
+        .await
+        .map_err(|e| e.to_string())?;
+    
+    Ok(result)
+}
+```
+
+## Docker Configuration
+
+### Dockerfile
+
+```dockerfile
+# Dockerfile
+FROM python:3.10-slim as builder
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    gcc \
+    pkg-config \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+WORKDIR /app
+
+# Install Poetry
+RUN pip install poetry==1.4.2
+
+# Copy only dependencies to leverage Docker cache
+COPY pyproject.toml poetry.lock* ./
+
+# Configure Poetry to not use a virtual environment
+RUN poetry config virtualenvs.create false
+
+# Install dependencies
+RUN poetry install --no-root --no-interaction
+
+# Copy the project
+COPY . .
+
+# Build Rust extensions
+RUN poetry run maturin develop --release
+
+# Build final image
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy from builder image
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY --from=builder /app /app
+
+# Set environment variables
+ENV PYTHONPATH=/app
+
+# Run the tokenization service
+CMD ["python", "-m", "tokenizers.server.api"]
+```
+
+### Docker Compose (docker-compose.yml)
+
+```yaml
+version: '3'
+
+services:
+  tokenization_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./tokenizer_data:/app/tokenizer_data
+    environment:
+      - TOKENIZERS_CACHE_DIR=/app/tokenizer_data
+      - LOG_LEVEL=INFO
+      - MAX_WORKERS=4
+    restart: unless-stopped
+  
+  tokenization_lab:
+    build:
+      context: ./tokenization_lab
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - tokenization_api
+    environment:
+      - TOKENIZATION_API_URL=http://tokenization_api:8000
+    restart: unless-stopped
+
+volumes:
+  tokenizer_data:
+```
+
+## CLI Tool
+
+```python
+# src/tokenizers/cli.py
+import json
+import os
+import sys
+from pathlib import Path
+from typing import List, Optional
+
+import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+from tokenizers.algorithms.bpe import BPETokenizer
+from tokenizers.algorithms.wordpiece import WordpieceTokenizer
+from tokenizers.core.base_tokenizer import TokenizerType
+from tokenizers.core.registry import TokenizerRegistry
+from tokenizers.models.bert import BertTokenizer
+from tokenizers.models.gpt import GPTTokenizer
+from tokenizers.server.api import start_server
+
+app = typer.Typer(help="ML Tokenization System CLI")
+console = Console()
+registry = TokenizerRegistry()
+
+
+@app.command()
+def train_tokenizer(
+    tokenizer_type: str = typer.Option(..., help="Type of tokenizer to train (bpe, wordpiece, unigram, sentencepiece)"),
+    input_file: Path = typer.Option(..., help="Input file with training texts (one per line)"),
+    output_dir: Path = typer.Option(..., help="Output directory to save the tokenizer"),
+    vocab_size: int = typer.Option(30000, help="Size of the vocabulary"),
+    min_frequency: int = typer.Option(2, help="Minimum frequency for a token to be included"),
+    num_workers: int = typer.Option(-1, help="Number of worker processes (-1 for all cores)"),
+):
+    """Train a new tokenizer on text data."""
+    console.print(Panel(f"Training {tokenizer_type} tokenizer with vocab size {vocab_size}", title="ML Tokenization System"))
+    
+    # Load training data
+    console.print(f"Loading training data from {input_file}...")
+    try:
+        with open(input_file, "r", encoding="utf-8") as f:
+            texts = [line.strip() for line in f if line.strip()]
+        console.print(f"Loaded {len(texts)} training examples")
+    except Exception as e:
+        console.print(f"[red]Error loading training data: {e}[/red]")
+        raise typer.Exit(code=1)
+    
+    # Create tokenizer
+    if tokenizer_type.lower() == "bpe":
+        tokenizer = BPETokenizer(vocab_size=vocab_size)
+    elif tokenizer_type.lower() == "wordpiece":
+        tokenizer = WordpieceTokenizer(vocab_size=vocab_size)
+    else:
+        console.print(f"[red]Unsupported tokenizer type: {tokenizer_type}[/red]")
+        raise typer.Exit(code=1)
+    
+    # Train the tokenizer
+    console.print(f"Training tokenizer on {len(texts)} texts...")
+    try:
+        tokenizer.train(texts=texts, min_frequency=min_frequency, num_workers=num_workers)
+        console.print(f"[green]Training complete![/green]")
+    except Exception as e:
+        console.print(f"[red]Error training tokenizer: {e}[/red]")
+        raise typer.Exit(code=1)
+    
+    # Save the tokenizer
+    console.print(f"Saving tokenizer to {output_dir}...")
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        tokenizer.save(output_dir)
+        console.print(f"[green]Tokenizer saved to {output_dir}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error saving tokenizer: {e}[/red]")
+        raise typer.Exit(code=1)
+    
+    # Register the tokenizer
+    tokenizer_id = f"{tokenizer_type.lower()}_{output_dir.name}"
+    registry.register_tokenizer(tokenizer_id, tokenizer)
+    console.print(f"Registered tokenizer as '{tokenizer_id}'")
+
+
+@app.command()
+def load_tokenizer(
+    tokenizer_path: Path = typer.Option(..., help="Path to the tokenizer directory"),
+    tokenizer_type: str = typer.Option(..., help="Type of tokenizer (bpe, wordpiece, etc.)"),
+    tokenizer_id: str = typer.Option(None, help="ID to register the tokenizer with (default: auto-generated)"),
+):
+    """Load an existing tokenizer from disk."""
+    if not tokenizer_path.exists() or not tokenizer_path.is_dir():
+        console.print(f"[red]Tokenizer path {tokenizer_path} does not exist or is not a directory[/red]")
+        raise typer.Exit(code=1)
+    
+    # Load the tokenizer
+    console.print(f"Loading {tokenizer_type} tokenizer from {tokenizer_path}...")
+    try:
+        if tokenizer_type.lower() == "bpe":
+            tokenizer = BPETokenizer.load(tokenizer_path)
+        elif tokenizer_type.lower() == "wordpiece":
+            tokenizer = WordpieceTokenizer.load(tokenizer_path)
+        else:
+            console.print(f"[red]Unsupported tokenizer type: {tokenizer_type}[/red]")
+            raise typer.Exit(code=1)
+        
+        console.print(f"[green]Tokenizer loaded successfully![/green]")
+        
+        # Register the tokenizer
+        if not tokenizer_id:
+            tokenizer_id = f"{tokenizer_type.lower()}_{tokenizer_path.name}"
+        
+        registry.register_tokenizer(tokenizer_id, tokenizer)
+        console.print(f"Registered tokenizer as '{tokenizer_id}'")
+        
+    except Exception as e:
+        console.print(f"[red]Error loading tokenizer: {e}[/red]")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def load_pretrained(
+    model_name: str = typer.Option(..., help="Pretrained model name (e.g., bert-base-uncased, gpt2)"),
+    tokenizer_id: str = typer.Option(None, help="ID to register the tokenizer with (default: model name)"),
+    local_files_only: bool = typer.Option(False, help="Use only local files (don't download)"),
+):
+    """Load a pretrained tokenizer from Hugging Face."""
+    console.print(f"Loading pretrained tokenizer '{model_name}'...")
+    
+    try:
+        # Determine tokenizer type from model name
+        if model_name.startswith(("bert", "roberta", "albert")):
+            tokenizer = BertTokenizer.from_huggingface(model_name, local_files_only=local_files_only)
+        elif model_name.startswith(("gpt", "openai")):
+            tokenizer = GPTTokenizer.from_huggingface(model_name, local_files_only=local_files_only)
+        else:
+            console.print(f"[red]Unsupported model type: {model_name}[/red]")
+            raise typer.Exit(code=1)
+        
+        console.print(f"[green]Tokenizer loaded successfully![/green]")
+        
+        # Register the tokenizer
+        if not tokenizer_id:
+            tokenizer_id = model_name.replace("-", "_")
+        
+        registry.register_tokenizer(tokenizer_id, tokenizer)
+        console.print(f"Registered tokenizer as '{tokenizer_id}'")
+        
+    except Exception as e:
+        console.print(f"[red]Error loading pretrained tokenizer: {e}[/red]")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def tokenize(
+    text: str = typer.Argument(..., help="Text to tokenize"),
+    tokenizer_id: str = typer.Option(..., help="ID of the tokenizer to use"),
+    output_format: str = typer.Option("text", help="Output format (text, json, ids, tokens)"),
+    add_special_tokens: bool = typer.Option(True, help="Add special tokens"),
+):
+    """Tokenize a text using a registered tokenizer."""
+    # Get the tokenizer
+    tokenizer = registry.get_tokenizer(tokenizer_id)
+    if not tokenizer:
+        console.print(f"[red]Tokenizer '{tokenizer_id}' not found[/red]")
+        raise typer.Exit(code=1)
+    
+    # Tokenize the text
+    try:
+        result = tokenizer.encode(text, add_special_tokens=add_special_tokens, return_tokens=True)
+        
+        # Format the output
+        if output_format == "json":
+            console.print(json.dumps(result.dict(), indent=2))
+        elif output_format == "ids":
+            console.print(result.input_ids)
+        elif output_format == "tokens":
+            if not result.tokens:
+                console.print("[red]Tokens not available (set return_tokens=True)[/red]")
+                raise typer.Exit(code=1)
+            console.print(result.tokens)
+        else:  # text
+            table = Table(title=f"Tokenization Results ({tokenizer_id})")
+            table.add_column("Token", style="cyan")
+            table.add_column("ID", style="green")
+            
+            for token, token_id in zip(result.tokens or [], result.input_ids):
+                table.add_row(token, str(token_id))
+            
+            console.print(table)
+    
+    except Exception as e:
+        console.print(f"[red]Error tokenizing text: {e}[/red]")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def list_tokenizers():
+    """List all registered tokenizers."""
+    tokenizers = registry.list_tokenizers()
+    
+    if not tokenizers:
+        console.print("No tokenizers registered")
+        return
+    
+    table = Table(title="Registered Tokenizers")
+    table.add_column("ID", style="cyan")
+    table.add_column("Type", style="green")
+    table.add_column("Vocab Size", style="magenta")
+    table.add_column("Trained", style="yellow")
+    
+    for tokenizer_id, tokenizer in tokenizers.items():
+        table.add_row(
+            tokenizer_id,
+            tokenizer.tokenizer_type.value,
+            str(tokenizer.vocab_size),
+            "✓" if tokenizer.is_trained else "✗"
+        )
+    
+    console.print(table)
+
+
+@app.command()
+def benchmark(
+    tokenizer_id: str = typer.Option(..., help="ID of the tokenizer to use"),
+    input_file: Path = typer.Option(..., help="Input file with texts to benchmark (one per line)"),
+    batch_size: int = typer.Option(32, help="Batch size for processing"),
+    iterations: int = typer.Option(5, help="Number of iterations to run"),
+    warm_up: int = typer.Option(1, help="Number of warm-up iterations"),
+):
+    """Benchmark a tokenizer's performance."""
+    # Get the tokenizer
+    tokenizer = registry.get_tokenizer(tokenizer_id)
+    if not tokenizer:
+        console.print(f"[red]Tokenizer '{tokenizer_id}' not found[/red]")
+        raise typer.Exit(code=1)
+    
+    # Load benchmark data
+    try:
+        with open(input_file, "r", encoding="utf-8") as f:
+            texts = [line.strip() for line in f if line.strip()]
+        console.print(f"Loaded {len(texts)} texts for benchmarking")
+    except Exception as e:
+        console.print(f"[red]Error loading benchmark data: {e}[/red]")
+        raise typer.Exit(code=1)
+    
+    # Prepare batches
+    batches = []
+    for i in range(0, len(texts), batch_size):
+        batches.append(texts[i:i+batch_size])
+    
+    console.print(f"Running benchmark with {len(batches)} batches of size {batch_size}...")
+    
+    # Run warm-up iterations
+    console.print(f"Warming up for {warm_up} iterations...")
+    for _ in range(warm_up):
+        for batch in batches:
+            tokenizer.encode_batch(texts=batch)
+    
+    # Run benchmark iterations
+    import time
+    times = []
+    
+    with console.status("[bold green]Running benchmark...") as status:
+        for i in range(iterations):
+            start_time = time.time()
+            
+            for batch in batches:
+                tokenizer.encode_batch(texts=batch)
+            
+            end_time = time.time()
+            elapsed = end_time - start_time
+            times.append(elapsed)
+            
+            status.update(f"[bold green]Running benchmark... Iteration {i+1}/{iterations}")
+    
+    # Calculate statistics
+    import numpy as np
+    avg_time = np.mean(times)
+    std_time = np.std(times)
+    min_time = np.min(times)
+    max_time = np.max(times)
+    
+    total_tokens = 0
+    for batch in batches:
+        for text in batch:
+            # Rough estimate of tokens (words * 1.3)
+            total_tokens += len(text.split()) * 1.3
+    
+    tokens_per_second = total_tokens / avg_time
+    
+    # Display results
+    table = Table(title=f"Benchmark Results for {tokenizer_id}")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", style="green")
+    
+    table.add_row("Average Time (s)", f"{avg_time:.4f}")
+    table.add_row("Std Dev Time (s)", f"{std_time:.4f}")
+    table.add_row("Min Time (s)", f"{min_time:.4f}")
+    table.add_row("Max Time (s)", f"{max_time:.4f}")
+    table.add_row("Tokens per Second", f"{tokens_per_second:.0f}")
+    table.add_row("Texts per Second", f"{len(texts) / avg_time:.0f}")
+    
+    console.print(table)
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("0.0.0.0", help="Host to bind to"),
+    port: int = typer.Option(8000, help="Port to bind to"),
+):
+    """Start the tokenization server."""
+    console.print(Panel(f"Starting tokenization server on {host}:{port}", title="ML Tokenization System"))
+    
+    try:
+        start_server(host=host, port=port)
+    except Exception as e:
+        console.print(f"[red]Error starting server: {e}[/red]")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def analyze_distribution(
+    input_file: Path = typer.Option(..., help="Input file with texts to analyze (one per line)"),
+    tokenizer_id: str = typer.Option(..., help="ID of the tokenizer to use"),
+    num_samples: int = typer.Option(1000, help="Number of text samples to analyze"),
+    output_file: Optional[Path] = typer.Option(None, help="Output file for results (JSON)"),
+):
+    """Analyze token distribution for a corpus."""
+    # Get the tokenizer
+    tokenizer = registry.get_tokenizer(tokenizer_id)
+    if not tokenizer:
+        console.print(f"[red]Tokenizer '{tokenizer_id}' not found[/red]")
+        raise typer.Exit(code=1)
+    
+    # Load analysis data
+    try:
+        with open(input_file, "r", encoding="utf-8") as f:
+            texts = [line.strip() for line in f if line.strip()]
+        
+        if num_samples and num_samples < len(texts):
+            import random
+            texts = random.sample(texts, num_samples)
+        
+        console.print(f"Analyzing {len(texts)} texts with tokenizer '{tokenizer_id}'")
+    except Exception as e:
+        console.print(f"[red]Error loading analysis data: {e}[/red]")
+        raise typer.Exit(code=1)
+    
+    # Analyze token distribution
+    token_counts = {}
+    sequence_lengths = []
+    
+    with console.status("[bold green]Analyzing token distribution...") as status:
+        for i, text in enumerate(texts):
+            if i % 100 == 0:
+                status.update(f"[bold green]Analyzing... {i}/{len(texts)}")
+            
+            result = tokenizer.encode(text, return_tokens=True)
+            sequence_lengths.append(len(result.input_ids))
+            
+            for token in result.tokens or []:
+                if token in token_counts:
+                    token_counts[token] += 1
+                else:
+                    token_counts[token] = 1
+    
+    # Calculate statistics
+    import numpy as np
+    total_tokens = sum(sequence_lengths)
+    avg_length = np.mean(sequence_lengths)
+    median_length = np.median(sequence_lengths)
+    std_length = np.std(sequence_lengths)
+    
+    # Sort tokens by frequency
+    sorted_tokens = sorted(token_counts.items(), key=lambda x: x[1], reverse=True)
+    
+    # Calculate coverage
+    total_occurrences = sum(token_counts.values())
+    cumulative = 0
+    coverage_stats = []
+    
+    for i, (token, count) in enumerate(sorted_tokens[:100]):
+        cumulative += count
+        coverage = cumulative / total_occurrences
+        coverage_stats.append((i + 1, token, count, coverage))
+    
+    # Display results
+    table = Table(title=f"Token Distribution Analysis for {tokenizer_id}")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", style="green")
+    
+    table.add_row("Total Tokens", str(total_tokens))
+    table.add_row("Unique Tokens", str(len(token_counts)))
+    table.add_row("Avg Sequence Length", f"{avg_length:.2f}")
+    table.add_row("Median Sequence Length", f"{median_length:.2f}")
+    table.add_row("Std Dev Length", f"{std_length:.2f}")
+    
+    console.print(table)
+    
+    # Display top tokens
+    table = Table(title="Top 20 Tokens by Frequency")
+    table.add_column("Rank", style="cyan")
+    table.add_column("Token", style="green")
+    table.add_column("Count", style="magenta")
+    table.add_column("% of Total", style="yellow")
+    table.add_column("Cumulative %", style="red")
+    
+    for i, (token, count, coverage) in enumerate(
+        [(t, c, v) for i, t, c, v in coverage_stats[:20]]
+    ):
+        table.add_row(
+            str(i + 1),
+            token,
+            str(count),
+            f"{count / total_occurrences * 100:.2f}%",
+            f"{coverage * 100:.2f}%"
+        )
+    
+    console.print(table)
+    
+    # Display coverage milestones
+    console.print("Token Coverage Milestones:")
+    for target in [0.5, 0.75, 0.9, 0.95, 0.99]:
+        for i, coverage in enumerate([c for _, _, _, c in coverage_stats]):
+            if coverage >= target:
+                console.print(f"  {target*100:.0f}% coverage with top {i+1} tokens")
+                break
+    
+    # Save results if requested
+    if output_file:
+        results = {
+            "tokenizer_id": tokenizer_id,
+            "total_tokens": total_tokens,
+            "unique_tokens": len(token_counts),
+            "avg_sequence_length": float(avg_length),
+            "median_sequence_length": float(median_length),
+            "std_dev_length": float(std_length),
+            "top_tokens": [
+                {
+                    "token": token,
+                    "count": count,
+                    "percentage": count / total_occurrences,
+                    "cumulative_coverage": coverage
+                }
+                for i, token, count, coverage in coverage_stats
+            ],
+            "sequence_length_distribution": {
+                "min": int(min(sequence_lengths)),
+                "max": int(max(sequence_lengths)),
+                "histogram": np.histogram(sequence_lengths, bins=20)[0].tolist()
+            }
+        }
+        
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+        
+        console.print(f"[green]Results saved to {output_file}[/green]")
+
+
+if __name__ == "__main__":
+    app()
+```
+
+## README.md
+
+```markdown
+# ML Tokenization System
+
+A comprehensive tokenization system for machine learning models, with a focus on performance, cross-model compatibility, and extensibility.
+
+## Features
+
+- **Multiple Tokenization Algorithms**: BPE, WordPiece, Unigram, and SentencePiece implementations
+- **Model Compatibility**: Pre-built adapters for popular models (BERT, GPT, T5, LLaMA)
+- **Performance Optimization**: Rust-powered performance-critical components
+- **Visualization**: Interactive Tokenization Laboratory with Tauri v2
+- **Extensibility**: Modular architecture for easy addition of new tokenizers
+- **Cross-language**: Python API with optional Rust components
+- **Production-ready**: Comprehensive testing, robust error handling, and API services
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌───────────────────────┐   │
+│  │ Tokenization│    │  Encoding   │    │    Normalization      │   │
+│  │    Core     │───▶│  Management │───▶│        Engine         │   │
+│  └─────────────┘    └─────────────┘    └───────────────────────┘   │
+│         │                  │                      │                 │
+│         ▼                  ▼                      ▼                 │
+│  ┌─────────────┐    ┌─────────────┐    ┌───────────────────────┐   │
+│  │  Algorithm  │    │  Vocabulary │    │    Pre/Post-Process   │   │
+│  │   Registry  │    │  Management │    │        Pipeline       │   │
+│  └─────────────┘    └─────────────┘    └───────────────────────┘   │
+│                                                    │                │
+│                                                    ▼                │
+│  ┌─────────────────────────────┐    ┌───────────────────────────┐  │
+│  │   Performance Monitoring    │◀───│     Orchestration Hub     │  │
+│  └─────────────────────────────┘    └───────────────────────────┘  │
+│                  │                             ▲                    │
+│                  ▼                             │                    │
+│  ┌─────────────────────────────┐    ┌───────────────────────────┐  │
+│  │       Model Adapters        │    │   Tokenization Laboratory │  │
+│  └─────────────────────────────┘    └───────────────────────────┘  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## Installation
+
+### Using Poetry
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/ml-tokenization-system.git
+cd ml-tokenization-system
+
+# Install dependencies with Poetry
+poetry install
+
+# Build Rust extensions (if using Rust components)
+poetry run maturin develop --release
+```
+
+### Using Docker
+
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Or build and run individual services
+docker build -t ml-tokenization-system .
+docker run -p 8000:8000 ml-tokenization-system
+```
+
+## Tokenization Laboratory
+
+The Tokenization Laboratory provides an interactive interface for experimenting with different tokenizers, visualizing token distributions, and analyzing tokenization efficiency.
+
+```bash
+# Start the tokenization lab 
+cd tokenization_lab
+npm run tauri dev
+```
+
+## Usage Examples
+
+### Basic Usage
+
+```python
+from tokenizers.algorithms.bpe import BPETokenizer
+from tokenizers.normalization.normalizers import SequenceNormalizer
+
+# Create a BPE tokenizer
+tokenizer = BPETokenizer(
+    vocab_size=10000,
+    normalizer=SequenceNormalizer.default()
+)
+
+# Train the tokenizer
+with open("training_data.txt", "r") as f:
+    texts = [line.strip() for line in f]
+tokenizer.train(texts=texts)
+
+# Tokenize a text
+result = tokenizer.encode("Hello, world!", return_tokens=True)
+print(result.tokens)  # List of tokens
+print(result.input_ids)  # List of token IDs
+
+# Decode tokens back to text
+decoded = tokenizer.decode(result.input_ids)
+print(decoded)  # "Hello, world!"
+
+# Save the tokenizer
+tokenizer.save("./my_tokenizer")
+
+# Load the tokenizer
+loaded_tokenizer = BPETokenizer.load("./my_tokenizer")
+```
+
+### Using Pre-trained Models
+
+```python
+from tokenizers.models.bert import BertTokenizer
+from tokenizers.models.gpt import GPTTokenizer
+
+# Load BERT tokenizer
+bert_tokenizer = BertTokenizer.from_huggingface("bert-base-uncased")
+
+# Load GPT tokenizer
+gpt_tokenizer = GPTTokenizer.from_huggingface("gpt2")
+
+# Tokenize with both and compare
+bert_result = bert_tokenizer.encode("Hello, world!", return_tokens=True)
+gpt_result = gpt_tokenizer.encode("Hello, world!", return_tokens=True)
+
+print(f"BERT tokens: {bert_result.tokens}")
+print(f"GPT tokens: {gpt_result.tokens}")
+```
+
+### Command Line Interface
+
+```bash
+# Train a tokenizer
+tokenize train-tokenizer \
+    --tokenizer-type bpe \
+    --input-file data/train.txt \
+    --output-dir ./my_tokenizer \
+    --vocab-size 20000
+
+# Load a pretrained tokenizer
+tokenize load-pretrained --model-name bert-base-uncased
+
+# Tokenize text
+tokenize tokenize "Hello, world!" --tokenizer-id bert_base_uncased
+
+# Analyze token distribution
+tokenize analyze-distribution \
+    --input-file data/corpus.txt \
+    --tokenizer-id bert_base_uncased \
+    --output-file analysis.json
+
+# Start the tokenization server
+tokenize serve --port 8000
+```
+
+## API Documentation
+
+The API documentation is available at `/docs` when the server is running:
+
+```bash
+tokenize serve
+# Then navigate to http://localhost:8000/docs
+```
+
+## Extending the Tokenization System
+
+### Adding a New Tokenization Algorithm
+
+1. Create a new class that inherits from `BaseTokenizer`
+2. Implement the required methods: `train()`, `encode()`, `decode()`, `save()`, and `load()`
+3. Register the tokenizer with the registry
+
+### Adding a New Model Adapter
+
+1. Create a new module in the `models` directory
+2. Implement adapter methods for loading and configuring the tokenizer
+3. Add factory methods for different initialization strategies
+
+## Performance Optimization
+
+For performance-critical applications, the system offers several optimization options:
+
+1. **Rust Extensions**: Critical paths are implemented in Rust for maximum performance
+2. **Caching**: Token merges and encodings are cached to avoid redundant work
+3. **Batching**: Use batch methods for processing multiple texts
+4. **Parallelization**: Training and batch processing leverage multiple cores
+
+## Cross-Model Compatibility
+
+The system includes tools for analyzing and enhancing cross-model compatibility:
+
+```python
+from tokenizers.utils.compatibility import compare_tokenization, transfer_tokenization
+
+# Compare tokenization between models
+comparison = compare_tokenization(
+    text="This is a test",
+    tokenizer_a=bert_tokenizer,
+    tokenizer_b=gpt_tokenizer
+)
+
+# Transfer tokenization from one model to another
+transferred = transfer_tokenization(
+    tokens=bert_result.tokens,
+    source_tokenizer=bert_tokenizer,
+    target_tokenizer=gpt_tokenizer
+)
+```
+
+## Testing
+
+Comprehensive tests are included for all components:
+
+```bash
+# Run all tests
+poetry run pytest
+
+# Run specific test categories
+poetry run pytest tests/unit
+poetry run pytest tests/integration
+poetry run pytest tests/performance
+poetry run pytest tests/multilingual
+
+# Run with coverage report
+poetry run pytest --cov=tokenizers
+```
+
+## Contributing
+
+Contributions are welcome! Please check the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines.
+
+## License
+
+MIT
+```
+
+This ML Tokenization System implementation provides a comprehensive framework for working with various tokenization algorithms and models. It includes:
+
+1. Core tokenization algorithms (BPE, WordPiece)
+2. Encoding and normalization components
+3. Model adapters for popular models
+4. Performance monitoring and optimization
+5. A Tauri-based interactive laboratory
+6. CLI for training and using tokenizers
+7. API server for integration with other systems
+8. Comprehensive documentation and examples
+
+The system is designed with a modular architecture that separates different concerns, making it extensible and maintainable. It also includes Rust components for performance-critical paths, ensuring high throughput for production environments.
+

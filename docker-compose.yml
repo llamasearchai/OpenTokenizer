@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  tokenization_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./tokenizer_data:/app/tokenizer_data
+    environment:
+      - TOKENIZERS_CACHE_DIR=/app/tokenizer_data
+      - LOG_LEVEL=INFO
+      - MAX_WORKERS=4
+    restart: unless-stopped
+  
+  tokenization_lab:
+    build:
+      context: ./tokenization_lab
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - tokenization_api
+    environment:
+      - TOKENIZATION_API_URL=http://tokenization_api:8000
+    restart: unless-stopped
+
+volumes:
+  tokenizer_data:
